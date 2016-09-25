@@ -40,10 +40,16 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
         camera.update();
+        mapRender();
+
+	}
+
+	private void mapRender()
+    {
         int xBrush = 0;
         int yBrush = 0;
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1, 1, 1, 1);
         for (int i=(map.height-1); i>=0; --i) {
@@ -57,11 +63,18 @@ public class Game extends ApplicationAdapter {
             xBrush = 0;
         }
         shapeRenderer.end();
-	}
+    }
+
+    private void zombieRender()
+    {
+        //TODO Render zombie
+
+    }
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
 		img.dispose();
+        shapeRenderer.dispose();
 	}
 }

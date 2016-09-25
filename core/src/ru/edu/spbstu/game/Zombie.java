@@ -1,9 +1,7 @@
 package ru.edu.spbstu.game;
 import java.util.*;
 
-/**
- * Created by lizmoscow on 17/09/16.
- */
+
 public class Zombie {
 
     private int x; //Координата зомби по оси абсцисс
@@ -15,7 +13,7 @@ public class Zombie {
     private int vy; //Скорость по оси ординат
 
     public void Zombie(int xmax, int ymax, int [][] array) { //Генерирует зомби на карте
-        Random rand = new Random(13);
+        Random rand = new Random();
         if (rand.nextBoolean()) { //Определяет, у вертикальной или горизонтальной появится зомби
             if (rand.nextBoolean()) { //Определяет, с левой или правой вертикальной появится зомби, и задает соотв. направление скорости
                 x = 0;
