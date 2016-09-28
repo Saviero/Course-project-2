@@ -23,7 +23,7 @@ public class Map {
             for(int j = 0; j < mapArray[i].length; ++j) {
                 mapArray[i][j] = 1;
             }
-            i += 2 + rand.nextInt(4);
+            i += 3 + rand.nextInt(4);
         }
         i = 1 + rand.nextInt(2);
         while (i < mapArray[0].length - 1) {
@@ -35,7 +35,7 @@ public class Map {
                     mapArray[j][i] = 1;
                 }
             }
-            i += 2 + rand.nextInt(4);
+            i += 3 + rand.nextInt(4);
         }
     }
 }
