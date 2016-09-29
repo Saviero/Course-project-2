@@ -63,17 +63,10 @@ public class Game extends ApplicationAdapter {
         }
         shapeRenderer.end();
     }
-
-    private void zombieRender()
-    {
-        //TODO Render zombie
-
-    }
 	
 	@Override
 	public void dispose () {
-		batch.dispose();
-		img.dispose();
+        batch.dispose();
         shapeRenderer.dispose();
 	}
 }
