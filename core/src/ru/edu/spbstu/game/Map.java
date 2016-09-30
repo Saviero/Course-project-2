@@ -15,62 +15,69 @@ public class Map {
         this.height = height/tilewidth;
     }
 
+    private int cooldown = 0;
+
+    private int shift(int i)
+    {
+        Random rand = new Random();
+        if (rand.nextInt(16)/15==1 && cooldown <= 0)
+        {
+            if (i >= height - 2)
+                i += rand.nextInt(2) - 1;
+            else if (i <= 1)
+                i += rand.nextInt(2);
+            else
+                i += rand.nextInt(3) - 1;
+            // TODO Fix roads' widening due to shifts
+            cooldown = 2;
+        }
+        --cooldown;
+        return i;
+    }
+
 
     public void generate() {
         Random rand = new Random();
         int i = 1 + rand.nextInt(2);
-        int cooldown = 0;
+        int j = 0;
+        int shifti;
 
         while (i < height- 2) {
-            for(int j = 0; j < width; ++j) {
-
+            while (j < width) {
                 mapArray[i][j] = 1;
-                if (rand.nextInt(16)/15==1 && cooldown <= 0)
-                {
-                    if (i >= height - 2)
-                        i += rand.nextInt(2) - 1;
-                    else if (i <= 1)
-                        i += rand.nextInt(2);
-                    else
-                        i += rand.nextInt(3) - 1;
-                    // TODO Fix roads' widening due to shifts
-                    cooldown = 2;
+                shifti = shift(i);
+                if (shifti != i) {
+                    i = shifti;
                 }
-                mapArray[i][j] = 1;
-                --cooldown;
+                else {
+                    ++j;
+                }
             }
+            j= 0;
             i += 3 + rand.nextInt(4);
         }
 
         cooldown = 0;
         i = 1 + rand.nextInt(2);
-        while (i < width - 1) {
-            for (int j=0; j < height; ++j) {
+        j = 0;
+        while (i < width - 2) {
+            while (j < height) {
                 if (mapArray[j][i] == 1) {
                     mapArray[j][i] = 2;
                 }
                 else {
                     mapArray[j][i] = 1;
                 }
-                if (rand.nextInt(16)/15==1 && cooldown <= 0)
-                {
-                    if (i >= width - 2)
-                        i -= 1;
-                    else if (i <= 1)
-                        i += rand.nextInt(2);
-                    else
-                        i += rand.nextInt(3) - 1;
-                    cooldown = 1;
-                }
-                if (mapArray[j][i] == 1) {
-                    mapArray[j][i] = 2;
+                shifti = shift(i);
+                if (shifti != i) {
+                    i = shifti;
                 }
                 else {
-                    mapArray[j][i] = 1;
+                    ++j;
                 }
-                --cooldown;
             }
             i += 3 + rand.nextInt(4);
+            j = 0;
         }
     }
 }
