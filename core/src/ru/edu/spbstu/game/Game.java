@@ -21,15 +21,14 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, width, height);
         shapeRenderer.setProjectionMatrix(camera.combined);
-		map = new Map(width, height);
+		map = new Map(width, height, tileWidth);
         map.generate();
-        for(int i=0; i<map.mapArray.length; ++i) {
-            for (int j = 0; j < map.mapArray[i].length; ++j) {
+        for(int i=0; i<map.height; ++i) {
+            for (int j = 0; j < map.width; ++j) {
                 System.out.print(map.mapArray[i][j]);
                 System.out.print(" ");
             }
@@ -40,10 +39,16 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
         camera.update();
+        mapRender();
+
+	}
+
+	private void mapRender()
+    {
         int xBrush = 0;
         int yBrush = 0;
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1, 1, 1, 1);
         for (int i=(map.height-1); i>=0; --i) {
@@ -57,11 +62,11 @@ public class Game extends ApplicationAdapter {
             xBrush = 0;
         }
         shapeRenderer.end();
-	}
+    }
 	
 	@Override
 	public void dispose () {
-		batch.dispose();
-		img.dispose();
+        batch.dispose();
+        shapeRenderer.dispose();
 	}
 }
