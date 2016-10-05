@@ -97,7 +97,7 @@ public class Map {
             x = zombies[i].getX() / 20; //Координата плитки по оси абсцисс
             y = zombies[i].getY() / 20; //Координата плитки по оси ординат
 
-            if (zombies[i].getPrevCrossingX() != x || zombies[i].getPrevCrossingy() != y) { //Если зомби перешел на новую плитку
+            if (zombies[i].getPrevCrossingX() != x || zombies[i].getPrevCrossingY() != y) { //Если зомби перешел на новую плитку
 
                 for (int j = 0; j < 4; ++j) { //Находим все возможные пути движения
                     switch (j) {

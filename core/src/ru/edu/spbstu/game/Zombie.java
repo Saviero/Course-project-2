@@ -1,9 +1,6 @@
 package ru.edu.spbstu.game;
 import java.util.*;
 
-/**
- * Created by lizmoscow on 17/09/16.
- */
 public class Zombie {
 
     private int x; //Координата зомби по оси абсцисс
@@ -63,7 +60,7 @@ public class Zombie {
 
     public int getPrevCrossingX(){return this.prevCrossingX;}
 
-    public int getPrevCrossingy(){return this.prevCrossingY;}
+    public int getPrevCrossingY(){return this.prevCrossingY;}
 }
 
 
