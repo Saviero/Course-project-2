@@ -1,9 +1,6 @@
 package ru.edu.spbstu.game;
 import java.util.*;
 
-/**
- * Created by lizmoscow on 17/09/16.
- */
 public class Zombie {
 
     private int x; //Координата зомби по оси абсцисс
@@ -14,68 +11,56 @@ public class Zombie {
 
     private int vy; //Скорость по оси ординат
 
-    public void Zombie(int xmax, int ymax, int [][] array) { //Генерирует зомби на карте
-        Random rand = new Random(13);
-        if (rand.nextBoolean()) { //Определяет, у вертикальной или горизонтальной появится зомби
-            if (rand.nextBoolean()) { //Определяет, с левой или правой вертикальной появится зомби, и задает соотв. направление скорости
-                x = 0;
-                vx = 1;
-                vy = 0;
-            }
-            else {
-                x = xmax - 1;
-                vx = -1;
-                vy = 0;
-            }
-            y = rand.nextInt(ymax); //Выбирает случайную клетку на границе
-            while (array[x][y] != 0) //Ищет ближайшую снизу дорогу
-                if (y++ == ymax)
-                    y = 0;
-        }
-        else {
-            if (rand.nextBoolean()) { //Определяет, с верхней или нижней границы появится зомби, и задает соотв. направление скорости
-                y = 0;
-                vx = 0;
-                vy = 1;
-            }
-            else {
-                y = ymax - 1;
-                vx = 0;
-                vy = -1;
-            }
-            x = rand.nextInt(xmax); //Выбирает случайную клетку на границе
-            while (array[x][y] != 0) //Ищет ближайшую справа дорогу
-                if (x++ == xmax)
-                    x = 0;
-        }
-    }
+    private int prevCrossingX = 0; //Абсцисса предыдущего перекрестка
 
-    public void Zombie(int xx, int yy) {x = xx; y = yy;} //Генерирует зомби с нужными координатами
+    private int prevCrossingY = 0; //Ордината предыдущего перекрестка
+
+    public Zombie(int x, int y, int vx, int vy) { //Генерирует зомби с нужными координатами
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+    }
 
     public void move() { //Перемещает зомби по дороге и поворачивает при необходимости
         Random rand = new Random( );
+
         if (vx > 0) { //Перемещает
             x += rand.nextInt(3) + 1;
-            y += rand.nextInt(3) - 1;
+            //y += rand.nextInt(3) - 1;
         }
         else if (vx < 0) {
             x -= rand.nextInt(3) + 1;
-            y += rand.nextInt(3) - 1;
+            //y += rand.nextInt(3) - 1;
         }
         else if (vy > 0) {
-            x += rand.nextInt(3) - 1;
+            //x += rand.nextInt(3) - 1;
             y += rand.nextInt(3) + 1;
         }
         else {
-            x += rand.nextInt(3) - 1;
+            //x += rand.nextInt(3) - 1;
             y -= rand.nextInt(3) + 1;
         }
-        rotate( ); //Поворачивает
     }
 
-    private void rotate() { //Поворачивает зомби
-
+    public void rotate(int vx, int vy) { //Поворачивает зомби в нужном нам направлении
+        this.vx = vx;
+        this.vy = vy;
     }
+
+    public void setPrevCrossing(int x, int y) {this.x = x; this.y= y;} //Устанавливает пройденный перекресток
+
+    public int getX(){return this.x;}
+
+    public int getY(){return this.y;}
+
+    public int getVx(){return this.vx;}
+
+    public int getVy(){return this.vy;}
+
+    public int getPrevCrossingX(){return this.prevCrossingX;}
+
+    public int getPrevCrossingY(){return this.prevCrossingY;}
 }
 
 
