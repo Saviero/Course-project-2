@@ -27,13 +27,6 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
 		map = new Map(width, height, tileWidth);
         map.generate();
-        for(int i=0; i<map.height; ++i) {
-            for (int j = 0; j < map.width; ++j) {
-                System.out.print(map.mapArray[i][j]);
-                System.out.print(" ");
-            }
-            System.out.print("\n");
-        }
 	}
 
 	@Override

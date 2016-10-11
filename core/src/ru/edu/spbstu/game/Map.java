@@ -11,78 +11,130 @@ public class Map {
     public int amountOfZombies;
 
     public Map() {
+        for(int i=0; i<height; ++i)
+            for(int j=0;j<width;++j)
+                mapArray[i][j] = -1;
     }
 
     public Map(int width, int height, int tilewidth) {
         mapArray = new int[height/tilewidth][width/tilewidth]; //creating an empty map with custom size
         this.width = width/tilewidth;
         this.height = height/tilewidth;
+        for(int i=0; i<height; ++i)
+            for(int j=0;j<width;++j)
+                mapArray[i][j] = -1;
     }
 
-    private int cooldown = 0;
-
-    private int shift(int i)
+    private class Point implements Comparator<Point>, Comparable<Point>
     {
-        Random rand = new Random();
-        if (rand.nextInt(16)/15==1 && cooldown <= 0)
+        public int x = 0;
+        public int y = 0;
+
+        Point(int x, int y)
         {
-            if (i >= height - 2)
-                i += rand.nextInt(2) - 1;
-            else if (i <= 1)
-                i += rand.nextInt(2);
-            else
-                i += rand.nextInt(3) - 1;
-            // TODO Fix roads' widening due to shifts
-            cooldown = 2;
+            this.x = x;
+            this.y = y;
         }
-        --cooldown;
-        return i;
+
+        public boolean equals(Point a)
+        {
+            return x == a.x && y == a.y;
+        }
+
+        public int compare(Point a, Point b)
+        {
+            if (a.y < b.y)
+                return -1;
+            else if (a.y == b.y)
+                return a.x - b.x;
+            else
+                return 1;
+        }
+
+        public int compareTo(Point a)
+        {
+            return compare(this, a);
+        }
     }
 
 
     public void generate() {
         Random rand = new Random();
-        int i = 1 + rand.nextInt(2);
-        int j = 0;
-        int shifti;
-
-        while (i < height- 2) {
-            while (j < width) {
-                mapArray[i][j] = 1;
-                shifti = shift(i);
-                if (shifti != i) {
-                    i = shifti;
+        Point pos = new Point(0, 0);
+        PriorityQueue<Point> nextPoint = new PriorityQueue<Point>();
+        nextPoint.add(pos);
+        Point brush = new Point(0, 0);
+        int rectWidth;
+        int rectHeight;
+        while (!nextPoint.isEmpty())
+        {
+            // This cycle is for map debugging
+            for(int i=0; i<height; ++i) {
+                for (int j = 0; j < width; ++j) {
+                    System.out.print(mapArray[i][j]);
+                    System.out.print(" ");
                 }
-                else {
-                    ++j;
-                }
+                System.out.print("\n");
             }
-            j= 0;
-            i += 3 + rand.nextInt(4);
+            System.out.print("\n");
+            pos = nextPoint.poll();
+            rectWidth = 2+rand.nextInt(8);
+            rectHeight = 2+rand.nextInt(8);
+
+            //Adjusting rectangle size to map borders; TODO: check for adjanced blocks
+            if (pos.x + rectWidth > width -1 && pos.x + rectWidth == width - 2)
+            {
+                rectWidth = width - pos.x - 1;
+            }
+            if (pos.y + rectHeight > height - 1 && pos.y + rectHeight == height -2)
+            {
+                rectHeight = height - pos.y- 1;
+            }
+
+            //Initializing the brush
+            brush.x = pos.x+rectWidth;
+            brush.y = pos.y;
+
+            //Right side
+            for (int i=0; i <= rectHeight; ++brush.y, ++i)
+            {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                    continue;
+                mapArray[brush.y][brush.x] = 1;
+            }
+
+            //Down side
+            for (int i = -1; i <= rectWidth; --brush.x, ++i)
+            {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                    continue;
+                mapArray[brush.y][brush.x] = 1;
+            }
+
+            //Left side
+            for (int i = -1; i <=rectHeight; --brush.y, ++i)
+            {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                    continue;
+                mapArray[brush.y][brush.x] = 1;
+            }
+
+            //Up side
+            for (int i = -1; i < rectWidth; ++brush.x, ++i)
+            {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                    continue;
+                mapArray[brush.y][brush.x] = 1;
+            }
+
+            //Adding next points
+            if (pos.x + rectWidth + 1 < width)
+                nextPoint.add(new Point(pos.x+rectWidth+1, pos.y));
+            if (pos.y +rectHeight + 1 < height)
+                nextPoint.add(new Point (pos.x, pos.y+rectHeight+1));
+
         }
 
-        cooldown = 0;
-        i = 1 + rand.nextInt(2);
-        j = 0;
-        while (i < width - 2) {
-            while (j < height) {
-                if (mapArray[j][i] == 1) {
-                    mapArray[j][i] = 2;
-                }
-                else {
-                    mapArray[j][i] = 1;
-                }
-                shifti = shift(i);
-                if (shifti != i) {
-                    i = shifti;
-                }
-                else {
-                    ++j;
-                }
-            }
-            i += 3 + rand.nextInt(4);
-            j = 0;
-        }
     }
 
     public void addZombies(int n) {
