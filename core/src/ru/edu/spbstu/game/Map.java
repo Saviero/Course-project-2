@@ -20,8 +20,8 @@ public class Map {
         mapArray = new int[height/tilewidth][width/tilewidth]; //creating an empty map with custom size
         this.width = width/tilewidth;
         this.height = height/tilewidth;
-        for(int i=0; i<height; ++i)
-            for(int j=0;j<width;++j)
+        for(int i=0; i<this.height; ++i)
+            for(int j=0; j<this.width; ++j)
                 mapArray[i][j] = -1;
     }
 
