@@ -77,54 +77,69 @@ public class Map {
                 System.out.print("\n");
             }
             System.out.print("\n");
+
+            //Defining new rectangle
             pos = nextPoint.poll();
             rectWidth = 2+rand.nextInt(8);
             rectHeight = 2+rand.nextInt(8);
 
-            //Adjusting rectangle size to map borders; TODO: check for adjanced blocks
-            if (pos.x + rectWidth > width -1 && pos.x + rectWidth == width - 2)
+            //Adjusting rectangle size to map borders;
+            if (pos.x + rectWidth > width -1 || pos.x + rectWidth == width - 2)
             {
                 rectWidth = width - pos.x - 1;
             }
-            if (pos.y + rectHeight > height - 1 && pos.y + rectHeight == height -2)
+            if (pos.y + rectHeight > height - 1 || pos.y + rectHeight == height -2)
             {
                 rectHeight = height - pos.y- 1;
             }
+
+            //Adjusting rectangle size to neighbor blocks; TODO: fix out-of-bordering
+            while (mapArray[pos.y][pos.x + rectWidth - 1] != -1)
+                --rectWidth;
 
             //Initializing the brush
             brush.x = pos.x+rectWidth;
             brush.y = pos.y;
 
+            //Inside
+            for(int i = 0; i < rectHeight; ++i)
+                for(int j = 0; j < rectWidth; ++j)
+                    mapArray[i+pos.y][j+pos.x] = 0;
+
             //Right side
-            for (int i=0; i <= rectHeight; ++brush.y, ++i)
+            for (int i=0; i < rectHeight; ++i)
             {
                 if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
                     continue;
                 mapArray[brush.y][brush.x] = 1;
+                ++brush.y;
             }
 
             //Down side
-            for (int i = -1; i <= rectWidth; --brush.x, ++i)
+            for (int i = -1; i < rectWidth; ++i)
             {
                 if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
                     continue;
                 mapArray[brush.y][brush.x] = 1;
+                --brush.x;
             }
 
             //Left side
-            for (int i = -1; i <=rectHeight; --brush.y, ++i)
+            for (int i = -1; i < rectHeight; ++i)
             {
                 if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
                     continue;
                 mapArray[brush.y][brush.x] = 1;
+                --brush.y;
             }
 
             //Up side
-            for (int i = -1; i < rectWidth; ++brush.x, ++i)
+            for (int i = -1; i < rectWidth; ++i)
             {
                 if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
                     continue;
                 mapArray[brush.y][brush.x] = 1;
+                ++brush.x;
             }
 
             //Adding next points
