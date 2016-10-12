@@ -69,31 +69,16 @@ public class Map {
         String debug = "";
         while (!(nextPoint.isEmpty()))
         {
-            // This cycle is for map debugging
-            for(int i=0; i<height; ++i) {
-                for (int j = 0; j < width; ++j) {
-                    System.err.print(mapArray[i][j]);
-                    System.err.print(" ");
-                }
-                System.err.print("\n");
-            }
-            System.err.print("\n");
-
             //Polling new point
             pos = nextPoint.poll();
             while (mapArray[pos.y][pos.x] != -1)
                 pos = nextPoint.poll();
 
-            debug = "Polled point: ";
-            debug += pos.x;
-            debug += " " + pos.y;
-            System.err.println(debug);
-
             //Rectangle size
             rectWidth = 2+rand.nextInt(8);
             rectHeight = 2+rand.nextInt(8);
 
-            //Adjusting rectangle size to map borders;
+            //Adjusting rectangle size to map borders
             if (pos.x + rectWidth >= width -1)
             {
                 rectWidth = width - pos.x;
@@ -103,7 +88,7 @@ public class Map {
                 rectHeight = height - pos.y;
             }
 
-            //Adjusting rectangle size to neighbor blocks; TODO: fix out-of-bordering
+            //Adjusting rectangle size to neighbor blocks
             while (mapArray[pos.y][pos.x + rectWidth - 1] != -1)
                 --rectWidth;
 
@@ -163,19 +148,9 @@ public class Map {
             //Adding next points
             if (pos.x + rectWidth + 1 < width && mapArray[pos.y][pos.x+rectWidth+1] == -1) {
 
-                debug = "Adding point: ";
-                debug += (pos.x+rectWidth+1);
-                debug += " " + pos.y;
-                System.err.println(debug);
-
                 nextPoint.add(new Point(pos.x + rectWidth + 1, pos.y));
             }
             if (pos.y + rectHeight + 1 < height && mapArray[pos.y + rectHeight + 1][pos.x] == -1 ) {
-
-                debug = "Adding point: ";
-                debug += pos.x;
-                debug += " " + (pos.y+rectHeight+1);
-                System.err.println(debug);
 
                 nextPoint.add(new Point(pos.x, pos.y + rectHeight + 1));
             }
