@@ -25,7 +25,7 @@ public class Map {
                 mapArray[i][j] = -1;
     }
 
-    private class Point implements Comparator<Point>, Comparable<Point>
+    private class Point implements Comparable<Point>
     {
         public int x = 0;
         public int y = 0;
@@ -36,24 +36,24 @@ public class Map {
             this.y = y;
         }
 
-        public boolean equals(Point a)
-        {
-            return x == a.x && y == a.y;
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Point)) {
+                return false;
+            }
+            Point pt = (Point) obj;
+            return x == pt.x && y == pt.y;
         }
 
-        public int compare(Point a, Point b)
-        {
-            if (a.y < b.y)
-                return -1;
-            else if (a.y == b.y)
-                return a.x - b.x;
-            else
-                return 1;
-        }
 
         public int compareTo(Point a)
         {
-            return compare(this, a);
+            if (this.y < a.y)
+                return -1;
+            else if (this.y == a.y)
+                return this.x - a.x;
+            else
+                return 1;
         }
     }
 
@@ -66,31 +66,41 @@ public class Map {
         Point brush = new Point(0, 0);
         int rectWidth;
         int rectHeight;
-        while (!nextPoint.isEmpty())
+        String debug = "";
+        while (!(nextPoint.isEmpty()))
         {
             // This cycle is for map debugging
             for(int i=0; i<height; ++i) {
                 for (int j = 0; j < width; ++j) {
-                    System.out.print(mapArray[i][j]);
-                    System.out.print(" ");
+                    System.err.print(mapArray[i][j]);
+                    System.err.print(" ");
                 }
-                System.out.print("\n");
+                System.err.print("\n");
             }
-            System.out.print("\n");
+            System.err.print("\n");
 
-            //Defining new rectangle
+            //Polling new point
             pos = nextPoint.poll();
+            while (mapArray[pos.y][pos.x] != -1)
+                pos = nextPoint.poll();
+
+            debug = "Polled point: ";
+            debug += pos.x;
+            debug += " " + pos.y;
+            System.err.println(debug);
+
+            //Rectangle size
             rectWidth = 2+rand.nextInt(8);
             rectHeight = 2+rand.nextInt(8);
 
             //Adjusting rectangle size to map borders;
-            if (pos.x + rectWidth > width -1 || pos.x + rectWidth == width - 2)
+            if (pos.x + rectWidth >= width -1)
             {
-                rectWidth = width - pos.x - 1;
+                rectWidth = width - pos.x;
             }
-            if (pos.y + rectHeight > height - 1 || pos.y + rectHeight == height -2)
+            if (pos.y + rectHeight >= height - 1)
             {
-                rectHeight = height - pos.y- 1;
+                rectHeight = height - pos.y;
             }
 
             //Adjusting rectangle size to neighbor blocks; TODO: fix out-of-bordering
@@ -109,8 +119,10 @@ public class Map {
             //Right side
             for (int i=0; i < rectHeight; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                    ++brush.y;
                     continue;
+                }
                 mapArray[brush.y][brush.x] = 1;
                 ++brush.y;
             }
@@ -118,8 +130,10 @@ public class Map {
             //Down side
             for (int i = -1; i < rectWidth; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                    --brush.x;
                     continue;
+                }
                 mapArray[brush.y][brush.x] = 1;
                 --brush.x;
             }
@@ -127,8 +141,10 @@ public class Map {
             //Left side
             for (int i = -1; i < rectHeight; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                    --brush.y;
                     continue;
+                }
                 mapArray[brush.y][brush.x] = 1;
                 --brush.y;
             }
@@ -136,17 +152,33 @@ public class Map {
             //Up side
             for (int i = -1; i < rectWidth; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0)
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                    ++brush.x;
                     continue;
+                }
                 mapArray[brush.y][brush.x] = 1;
                 ++brush.x;
             }
 
             //Adding next points
-            if (pos.x + rectWidth + 1 < width)
-                nextPoint.add(new Point(pos.x+rectWidth+1, pos.y));
-            if (pos.y +rectHeight + 1 < height)
-                nextPoint.add(new Point (pos.x, pos.y+rectHeight+1));
+            if (pos.x + rectWidth + 1 < width && mapArray[pos.y][pos.x+rectWidth+1] == -1) {
+
+                debug = "Adding point: ";
+                debug += (pos.x+rectWidth+1);
+                debug += " " + pos.y;
+                System.err.println(debug);
+
+                nextPoint.add(new Point(pos.x + rectWidth + 1, pos.y));
+            }
+            if (pos.y + rectHeight + 1 < height && mapArray[pos.y + rectHeight + 1][pos.x] == -1 ) {
+
+                debug = "Adding point: ";
+                debug += pos.x;
+                debug += " " + (pos.y+rectHeight+1);
+                System.err.println(debug);
+
+                nextPoint.add(new Point(pos.x, pos.y + rectHeight + 1));
+            }
 
         }
 
