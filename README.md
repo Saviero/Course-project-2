@@ -1,1 +1,1 @@
-A brand new course project via libGDX
+This is a student course project. Basically, this is a copycat of Atom Zombie Smasher.
