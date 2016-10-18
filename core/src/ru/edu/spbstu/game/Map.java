@@ -4,7 +4,7 @@ import java.lang.*;
 
 public class Map {
 
-    public Tile[][] mapArray = new Tile[30][40];  //array of tiles
+    private Tile[][] mapArray = new Tile[30][40];  //array of tiles
     public Vector<RoadTile> entrance = new Vector<RoadTile>();
     public int width = 40;
     public int height = 30;
@@ -28,7 +28,7 @@ public class Map {
 
     public class Tile
     {
-        public int value;
+        private int value;
         Tile()
         {
             value = -1;
@@ -38,9 +38,9 @@ public class Map {
             value = x;
         }
 
-        public void setValue(int value)
+        public int getValue()
         {
-            this.value = value;
+            return value;
         }
     }
 
@@ -98,6 +98,34 @@ public class Map {
         }
     }
 
+    public Tile getTile(int x, int y) {
+        return mapArray[y][x];
+    }
+
+
+    private void connectGraph(Point brush)
+    {
+        if ((brush.y == 0 || brush.x == 0 || brush.x == width - 1 || brush.y == height - 1) &&
+                (!entrance.contains((RoadTile)mapArray[brush.y][brush.x]))) {
+            entrance.addElement((RoadTile) mapArray[brush.y][brush.x]);
+        }
+        if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1) {
+            ((RoadTile) mapArray[brush.y][brush.x]).connections[0] = (RoadTile) mapArray[brush.y][brush.x - 1];
+            ((RoadTile) mapArray[brush.y][brush.x-1]).connections[2] = (RoadTile) mapArray[brush.y][brush.x];
+        }
+        if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1) {
+            ((RoadTile) mapArray[brush.y][brush.x]).connections[2] = (RoadTile) mapArray[brush.y][brush.x + 1];
+            ((RoadTile) mapArray[brush.y][brush.x + 1]).connections[0] = (RoadTile) mapArray[brush.y][brush.x];
+        }
+        if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1) {
+            ((RoadTile) mapArray[brush.y][brush.x]).connections[1] = (RoadTile) mapArray[brush.y - 1][brush.x];
+            ((RoadTile) mapArray[brush.y - 1][brush.x]).connections[3] = (RoadTile) mapArray[brush.y][brush.x];
+        }
+        if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1) {
+            ((RoadTile) mapArray[brush.y][brush.x]).connections[3] = (RoadTile) mapArray[brush.y + 1][brush.x];
+            ((RoadTile) mapArray[brush.y + 1][brush.x]).connections[1] = (RoadTile) mapArray[brush.y][brush.x];
+        }
+    }
 
     public void generate() {
         Random rand = new Random();
@@ -145,21 +173,13 @@ public class Map {
             //Right side
             for (int i=0; i < rectHeight; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                if ((brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) || mapArray[brush.y][brush.x].value == 1) {
                     ++brush.y;
                     continue;
                 }
-                mapArray[brush.y][brush.x] = new RoadTile(1); //TODO Move this block to separate method
-                if (brush.y == 0 || brush.x == 0)
-                    entrance.add((RoadTile)mapArray[brush.y][brush.x]);
-                if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[0] = (RoadTile)mapArray[brush.y][brush.x-1];
-                if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[2] = (RoadTile)mapArray[brush.y][brush.x+1];
-                if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[1] = (RoadTile)mapArray[brush.y - 1][brush.x];
-                if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[3] = (RoadTile)mapArray[brush.y+1][brush.x];
+                mapArray[brush.y][brush.x] = new RoadTile(1);
+
+                connectGraph(brush);
 
                 ++brush.y;
             }
@@ -167,22 +187,13 @@ public class Map {
             //Down side
             for (int i = -1; i < rectWidth; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].value == 1) {
                     --brush.x;
                     continue;
                 }
                 mapArray[brush.y][brush.x] = new RoadTile(1);
 
-                if (brush.y == 0 || brush.x == 0)
-                    entrance.add((RoadTile)mapArray[brush.y][brush.x]);
-                if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[0] = (RoadTile)mapArray[brush.y][brush.x-1];
-                if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[2] = (RoadTile)mapArray[brush.y][brush.x+1];
-                if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[1] = (RoadTile)mapArray[brush.y - 1][brush.x];
-                if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[3] = (RoadTile)mapArray[brush.y+1][brush.x];
+                connectGraph(brush);
 
                 --brush.x;
             }
@@ -190,42 +201,28 @@ public class Map {
             //Left side
             for (int i = -1; i < rectHeight; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].value == 1) {
                     --brush.y;
                     continue;
                 }
                 mapArray[brush.y][brush.x] = new RoadTile(1);
-                if (brush.y == 0 || brush.x == 0)
-                    entrance.add((RoadTile)mapArray[brush.y][brush.x]);
-                if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[0] = (RoadTile)mapArray[brush.y][brush.x-1];
-                if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[2] = (RoadTile)mapArray[brush.y][brush.x+1];
-                if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[1] = (RoadTile)mapArray[brush.y - 1][brush.x];
-                if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[3] = (RoadTile)mapArray[brush.y+1][brush.x];
+
+                connectGraph(brush);
+
                 --brush.y;
             }
 
             //Up side
             for (int i = -1; i < rectWidth; ++i)
             {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].value == 1) {
                     ++brush.x;
                     continue;
                 }
                 mapArray[brush.y][brush.x] = new RoadTile(1);
-                if (brush.y == 0 || brush.x == 0)
-                    entrance.add((RoadTile)mapArray[brush.y][brush.x]);
-                if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[0] = (RoadTile)mapArray[brush.y][brush.x-1];
-                if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[2] = (RoadTile)mapArray[brush.y][brush.x+1];
-                if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[1] = (RoadTile)mapArray[brush.y - 1][brush.x];
-                if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1)
-                    ((RoadTile)mapArray[brush.y][brush.x]).connections[3] = (RoadTile)mapArray[brush.y+1][brush.x];
+
+                connectGraph(brush);
+
                 ++brush.x;
             }
 

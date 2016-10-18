@@ -46,7 +46,7 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setColor(1, 1, 1, 1);
         for (int i=(map.height-1); i>=0; --i) {
             for(int j=0; j<map.width; ++j) {
-                if (map.mapArray[i][j].value == 1 || map.mapArray[i][j].value == 2) {
+                if (map.getTile(j, i).getValue() == 1 || map.getTile(j, i).getValue() == 2) {
                     shapeRenderer.rect(xBrush, yBrush, tileWidth, tileWidth);
                 }
                 xBrush += tileWidth;
