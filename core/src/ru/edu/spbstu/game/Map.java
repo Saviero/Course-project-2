@@ -5,7 +5,7 @@ import java.lang.*;
 public class Map {
 
     private Tile[][] mapArray = new Tile[30][40];  //array of tiles
-    public Vector<RoadTile> entrance = new Vector<RoadTile>();
+    public Vector<RoadTile> entrance = new Vector<RoadTile>(); // vector of tiles that lies at the edge of the map
     public int width = 40;
     public int height = 30;
     public Zombie[] zombies;
@@ -105,22 +105,28 @@ public class Map {
 
     private void connectGraph(Point brush)
     {
+        // Adding tile as entrance
         if ((brush.y == 0 || brush.x == 0 || brush.x == width - 1 || brush.y == height - 1) &&
                 (!entrance.contains((RoadTile)mapArray[brush.y][brush.x]))) {
             entrance.addElement((RoadTile) mapArray[brush.y][brush.x]);
         }
+        // Looking at adjancent tiles and connecting them
+        // Left tile
         if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].value == 1) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[0] = (RoadTile) mapArray[brush.y][brush.x - 1];
             ((RoadTile) mapArray[brush.y][brush.x-1]).connections[2] = (RoadTile) mapArray[brush.y][brush.x];
         }
+        // Right tile
         if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].value == 1) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[2] = (RoadTile) mapArray[brush.y][brush.x + 1];
             ((RoadTile) mapArray[brush.y][brush.x + 1]).connections[0] = (RoadTile) mapArray[brush.y][brush.x];
         }
+        // Up tile
         if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].value == 1) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[1] = (RoadTile) mapArray[brush.y - 1][brush.x];
             ((RoadTile) mapArray[brush.y - 1][brush.x]).connections[3] = (RoadTile) mapArray[brush.y][brush.x];
         }
+        // Down tile
         if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].value == 1) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[3] = (RoadTile) mapArray[brush.y + 1][brush.x];
             ((RoadTile) mapArray[brush.y + 1][brush.x]).connections[1] = (RoadTile) mapArray[brush.y][brush.x];
