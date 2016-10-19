@@ -44,8 +44,8 @@ public class Game extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1, 1, 1, 1);
-        for (int i=(map.height-1); i>=0; --i) {
-            for(int j=0; j<map.width; ++j) {
+        for (int i=(map.getHeight()-1); i>=0; --i) {
+            for(int j=0; j<map.getWidth(); ++j) {
                 if (map.getTile(j, i).getValue() == 1 || map.getTile(j, i).getValue() == 2) {
                     shapeRenderer.rect(xBrush, yBrush, tileWidth, tileWidth);
                 }
