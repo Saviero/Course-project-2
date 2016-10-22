@@ -8,6 +8,7 @@ public class Map {
     private Vector<RoadTile> entrance = new Vector<RoadTile>(); // vector of tiles that lies at the edge of the map
     private int width = 40;
     private int height = 30;
+    private int tileWidth = 20;
     private Zombie[] zombies;
     private int amountOfZombies;
 
@@ -19,11 +20,16 @@ public class Map {
 
     public Map(int width, int height, int tilewidth) {
         mapArray = new Tile[height/tilewidth][width/tilewidth]; //creating an empty map with custom size
+        this.tileWidth = tilewidth;
         this.width = width/tilewidth;
         this.height = height/tilewidth;
         for(int i=0; i<this.height; ++i)
             for(int j=0; j<this.width; ++j)
                 mapArray[i][j] = new Tile(-1);
+    }
+
+    public int getTileWidth() {
+        return tileWidth;
     }
 
     public int getWidth() {
@@ -32,38 +38,6 @@ public class Map {
 
     public int getHeight() {
         return height;
-    }
-
-    private class Point implements Comparable<Point>
-    {
-        public int x = 0;
-        public int y = 0;
-
-        Point(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Point)) {
-                return false;
-            }
-            Point pt = (Point) obj;
-            return x == pt.x && y == pt.y;
-        }
-
-
-        public int compareTo(Point a)
-        {
-            if (this.y < a.y)
-                return -1;
-            else if (this.y == a.y)
-                return this.x - a.x;
-            else
-                return 1;
-        }
     }
 
     public Tile getTile(int x, int y) {
@@ -112,7 +86,11 @@ public class Map {
         while (!(nextPoint.isEmpty()))
         {
             //Polling new point
-            pos = nextPoint.poll();
+            pos = new Point(nextPoint.poll());
+            if (mapArray[pos.y][pos.x] == null) {
+                System.err.println(pos.x);
+                System.err.println(pos.y);
+            }
             while (mapArray[pos.y][pos.x].getValue() != -1)
                 pos = nextPoint.poll();
 
