@@ -27,13 +27,6 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setProjectionMatrix(camera.combined);
 		map = new Map(width, height, tileWidth);
         map.generate();
-        for(int i=0; i<map.height; ++i) {
-            for (int j = 0; j < map.width; ++j) {
-                System.out.print(map.mapArray[i][j]);
-                System.out.print(" ");
-            }
-            System.out.print("\n");
-        }
 	}
 
 	@Override
@@ -51,9 +44,9 @@ public class Game extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1, 1, 1, 1);
-        for (int i=(map.height-1); i>=0; --i) {
-            for(int j=0; j<map.width; ++j) {
-                if (map.mapArray[i][j] == 1 || map.mapArray[i][j] == 2) {
+        for (int i=(map.getHeight()-1); i>=0; --i) {
+            for(int j=0; j<map.getWidth(); ++j) {
+                if (map.getTile(j, i).getValue() == 1 || map.getTile(j, i).getValue() == 2) {
                     shapeRenderer.rect(xBrush, yBrush, tileWidth, tileWidth);
                 }
                 xBrush += tileWidth;
