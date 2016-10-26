@@ -44,6 +44,10 @@ public class Map {
     }
 
     public Tile getTile(int x, int y) {
+        if (x >= width || x < 0 || y >= height || y < 0)
+        {
+            return null;
+        }
         return mapArray[y][x];
     }
 

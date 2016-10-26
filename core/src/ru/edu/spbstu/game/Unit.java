@@ -22,7 +22,7 @@ public class Unit {
 
     public void setTarget(int tileX, int tileY, Map map)
     {
-        if(!(map.getTile(tileX, tileY) instanceof RoadTile))
+        if(!(map.getTile(tileX, tileY) instanceof RoadTile) || (!path.isEmpty() && path.getLast().getCoordinates().equals(new Point (tileX, tileY))))
         {
             return;
         }
@@ -46,16 +46,49 @@ public class Unit {
                 }
             }
         }
+        path.clear();
         while (curr != position)
         {
+
             path.addFirst(curr);
             curr = pathAll.get(curr);
         }
+        position = path.removeFirst();
     }
 
-    public void move(Map map) // TODO Fix bug with clipping in tiles
+    public void move(Map map)
     {
-        if (!path.isEmpty()) {
+        destination = position.getCoordinates();
+        destination.x = destination.x * map.getTileWidth() + map.getTileWidth() / 2;
+        destination.y = destination.y * map.getTileWidth() + map.getTileWidth() / 2;
+        if (coordinates.almostEqual(destination, velocity))
+        {
+            coordinates = new Point(destination);
+            if (!path.isEmpty())
+            {
+                position = path.removeFirst();
+                destination = position.getCoordinates();
+                destination.x = destination.x * map.getTileWidth() + map.getTileWidth() / 2;
+                destination.y = destination.y * map.getTileWidth() + map.getTileWidth() / 2;
+            }
+        }
+        if (coordinates.x < destination.x)
+        {
+            coordinates.x += velocity;
+        }
+        else if (coordinates.x > destination.x)
+        {
+            coordinates.x -= velocity;
+        }
+        else if (coordinates.y < destination.y)
+        {
+            coordinates.y += velocity;
+        }
+        else if (coordinates.y > destination.y)
+        {
+            coordinates.y -= velocity;
+        }
+        /*if (!path.isEmpty()) {
             target = path.getFirst();
             destination = target.getCoordinates();
             destination.x = destination.x * map.getTileWidth() + map.getTileWidth() / 2;
@@ -80,7 +113,7 @@ public class Unit {
                 coordinates.x += velocity;
             else if (position.connections[3] == target)
                 coordinates.y += velocity;
-        }
+        }*/
     }
 
     public Point getCoordinates()

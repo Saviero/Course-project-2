@@ -112,7 +112,7 @@ public class Game extends ApplicationAdapter {
 	private void mapRender()
     {
         /*
-        Method for drawingg a map using shapeRenderer
+        Method for drawing a map using shapeRenderer
          */
         Point brush = new Point (0, 0);
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
@@ -164,6 +164,10 @@ public class Game extends ApplicationAdapter {
             int tileX = pos.x/tileWidth;
             int tileY = pos.y/tileWidth;
             Tile tile = map.getTile(tileX, tileY);
+            if (tile == null)
+            {
+                return;
+            }
             if (tile instanceof RoadTile) {
                 if (((RoadTile) tile).getUnit() == null && unitCounter > 0) { // if tile of road is without a unit, trying to spawn another one
                     pos.x -= pos.x % tileWidth;
@@ -187,6 +191,10 @@ public class Game extends ApplicationAdapter {
             int tileX = pos.x/tileWidth;
             int tileY = pos.y/tileWidth;
             Tile tile = map.getTile(tileX, tileY);
+            if (tile == null)
+            {
+                return;
+            }
             if (tile instanceof RoadTile) // if there's selected unit, trying to move it
                 selected.setTarget(tileX, tileY, map);
         }
