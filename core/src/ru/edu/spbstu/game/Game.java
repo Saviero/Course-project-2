@@ -8,9 +8,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Input.Buttons;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -19,9 +18,13 @@ public class Game extends ApplicationAdapter {
 
     private class Input extends InputAdapter
     {
+        /*
+        This class implements controls for the game
+         */
         private int mouseX;
         private int mouseY;
         private boolean pressed;
+        private int button;
 
         Input()
         {
@@ -29,6 +32,7 @@ public class Game extends ApplicationAdapter {
             mouseX = 0;
             mouseY = 0;
             pressed = false;
+            button = 0;
         }
 
         @Override
@@ -37,6 +41,7 @@ public class Game extends ApplicationAdapter {
             mouseX = x;
             mouseY = y;
             pressed = true;
+            this.button = button;
             return false;
         }
 
@@ -56,10 +61,12 @@ public class Game extends ApplicationAdapter {
         {
             return new Point (mouseX, mouseY);
         }
+
+        public int getButton() {return button;}
     }
 
     SpriteBatch batch;
-	Hashtable<String, Texture> textures = new Hashtable<String, Texture>();
+	Hashtable<String, Texture> textures = new Hashtable<String, Texture>(); // dictionary for textures
     ShapeRenderer shapeRenderer;
     OrthographicCamera camera;
     Input input;
@@ -67,7 +74,9 @@ public class Game extends ApplicationAdapter {
     int width = 800;
     int height = 480;
     int tileWidth = 20;
-    Vector<Unit> units = new Vector<Unit>();
+    Vector<Unit> units = new Vector<Unit>(); // all units generated on map
+    int unitCounter; // how much units user can spawn at the time
+    Unit selected; // selected unit
 
     private void loadTextures()
     {
@@ -88,6 +97,8 @@ public class Game extends ApplicationAdapter {
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
+        unitCounter = 1; // TODO: improve unitCounter
+        selected = null;
 	}
 
 	@Override
@@ -95,26 +106,14 @@ public class Game extends ApplicationAdapter {
         camera.update();
         mapRender();
         unitRender();
-        if (input.isPressed())
-        {
-            Point pos = new Point(input.mousePos());
-            int tileX = pos.x/tileWidth;
-            int tileY = pos.y/tileWidth;
-            Tile tile = map.getTile(tileX, tileY);
-            if (tile instanceof RoadTile) {
-                pos.x -= pos.x % tileWidth;
-                pos.y -= pos.y % tileWidth;
-                pos.x += tileWidth / 2;
-                pos.y += tileWidth / 2;
-                Unit createUnit = new Unit(pos.x, pos.y, map);
-                ((RoadTile) tile).putUnit(createUnit);
-                units.addElement(createUnit);
-            }
-        }
+        inputSwitch();
 	}
 
 	private void mapRender()
     {
+        /*
+        Method for drawingg a map using shapeRenderer
+         */
         Point brush = new Point (0, 0);
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -135,18 +134,62 @@ public class Game extends ApplicationAdapter {
 
     private void unitRender()
     {
+        /*
+        A method for drawing all units on map
+         */
         Texture texture = textures.get("Unit");
         Point brush;
         batch.begin();
         for (Unit unit : units)
         {
-            brush = new Point(unit.coordinates);
+            brush = unit.getCoordinates();
+            /*
+             Unit coordinates pointing at the centre of tile and y coordinate is shifted;
+             shifting y to match batch coordinates and make coordinates pointing at bottom left corner of tile
+            */
             brush.y = height - brush.y;
             brush.x -= tileWidth/2;
             brush.y -= tileWidth/2;
             batch.draw(texture, brush.x, brush.y);
+            unit.move(map);
         }
         batch.end();
+    }
+
+    private void inputSwitch()
+    {
+        if (input.isPressed() && input.getButton() == Buttons.LEFT) // Left mouse button
+        {
+            Point pos = new Point(input.mousePos());
+            int tileX = pos.x/tileWidth;
+            int tileY = pos.y/tileWidth;
+            Tile tile = map.getTile(tileX, tileY);
+            if (tile instanceof RoadTile) {
+                if (((RoadTile) tile).getUnit() == null && unitCounter > 0) { // if tile of road is without a unit, trying to spawn another one
+                    pos.x -= pos.x % tileWidth;
+                    pos.y -= pos.y % tileWidth;
+                    pos.x += tileWidth / 2;
+                    pos.y += tileWidth / 2;
+                    Unit createUnit = new Unit(pos.x, pos.y, map);
+                    ((RoadTile) tile).putUnit(createUnit);
+                    units.addElement(createUnit);
+                    unitCounter--;
+                }
+                else if (((RoadTile) tile).getUnit() != null) // if there's a unit, selecting it
+                {
+                    selected = ((RoadTile) tile).getUnit();
+                }
+            }
+        }
+        if (input.isPressed() && input.getButton() == Buttons.RIGHT && selected != null) //Right mouse button
+        {
+            Point pos = new Point(input.mousePos());
+            int tileX = pos.x/tileWidth;
+            int tileY = pos.y/tileWidth;
+            Tile tile = map.getTile(tileX, tileY);
+            if (tile instanceof RoadTile) // if there's selected unit, trying to move it
+                selected.setTarget(tileX, tileY, map); //TODO: Implement method
+        }
     }
 
 	@Override

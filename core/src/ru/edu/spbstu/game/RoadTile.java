@@ -6,13 +6,18 @@ public class RoadTile extends Tile
 
     public RoadTile[] connections = new RoadTile[4];
     private Unit unit = null;
-    RoadTile()
+    RoadTile(int value, int x, int y)
     {
-        super();
+        super(value, x, y);
     }
-    RoadTile(int value)
+    RoadTile(RoadTile copy)
     {
-        super(value);
+        super(copy);
+        this.unit = copy.unit;
+        for (int i=0; i<4; ++i)
+        {
+            this.connections[i] = copy.connections[i];
+        }
     }
     public void putUnit(Unit unit)
     {

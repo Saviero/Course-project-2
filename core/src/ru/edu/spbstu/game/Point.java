@@ -26,7 +26,10 @@ public class Point implements Comparable<Point>
         return x == pt.x && y == pt.y;
     }
 
-
+    public boolean almostEqual(Point point, int delta)
+    {
+        return (this.x-point.x)*(this.x-point.x)+(this.y-point.y)*(this.y-point.y)<=delta*delta;
+    }
     public int compareTo(Point a)
     {
         if (this.y < a.y)
