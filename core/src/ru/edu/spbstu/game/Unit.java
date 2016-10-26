@@ -53,7 +53,7 @@ public class Unit {
         }
     }
 
-    public void move(Map map)
+    public void move(Map map) // TODO Fix bug with clipping in tiles
     {
         if (!path.isEmpty()) {
             target = path.getFirst();

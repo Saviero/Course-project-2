@@ -28,6 +28,9 @@ public class Point implements Comparable<Point>
 
     public boolean almostEqual(Point point, int delta)
     {
+        /*
+         This method checks if point is inside a circle with center of this and radius of delta
+        */
         return (this.x-point.x)*(this.x-point.x)+(this.y-point.y)*(this.y-point.y)<=delta*delta;
     }
     public int compareTo(Point a)

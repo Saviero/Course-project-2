@@ -97,7 +97,7 @@ public class Game extends ApplicationAdapter {
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
-        unitCounter = 1; // TODO: improve unitCounter
+        unitCounter = 1;
         selected = null;
 	}
 
@@ -188,7 +188,7 @@ public class Game extends ApplicationAdapter {
             int tileY = pos.y/tileWidth;
             Tile tile = map.getTile(tileX, tileY);
             if (tile instanceof RoadTile) // if there's selected unit, trying to move it
-                selected.setTarget(tileX, tileY, map); //TODO: Implement method
+                selected.setTarget(tileX, tileY, map);
         }
     }
 

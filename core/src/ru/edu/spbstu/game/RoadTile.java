@@ -14,10 +14,7 @@ public class RoadTile extends Tile
     {
         super(copy);
         this.unit = copy.unit;
-        for (int i=0; i<4; ++i)
-        {
-            this.connections[i] = copy.connections[i];
-        }
+        System.arraycopy(copy.connections, 0, this.connections, 0, 4);
     }
     public void putUnit(Unit unit)
     {
