@@ -82,6 +82,8 @@ public class Game extends ApplicationAdapter {
     {
         Texture load = new Texture("unit.jpg");
         textures.put("Unit", load);
+        load = new Texture("unit_selected.jpg");
+        textures.put("Unit_selected", load);
     }
 	
 	@Override
@@ -138,6 +140,7 @@ public class Game extends ApplicationAdapter {
         A method for drawing all units on map
          */
         Texture texture = textures.get("Unit");
+        Texture texture_selected = textures.get("Unit_selected");
         Point brush;
         batch.begin();
         for (Unit unit : units)
@@ -150,7 +153,12 @@ public class Game extends ApplicationAdapter {
             brush.y = height - brush.y;
             brush.x -= tileWidth/2;
             brush.y -= tileWidth/2;
-            batch.draw(texture, brush.x, brush.y);
+            if (unit == selected) {
+                batch.draw(texture_selected, brush.x, brush.y);
+            }
+            else {
+                batch.draw(texture, brush.x, brush.y);
+            }
             unit.move(map);
         }
         batch.end();
