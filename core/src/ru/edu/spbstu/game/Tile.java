@@ -3,14 +3,22 @@ package ru.edu.spbstu.game;
 
 public class Tile
 {
-    private int value;
-    Tile()
+    private final int value;
+    private final Point coordinates;
+    Tile(Tile copy)
     {
-        value = -1;
+        this.value = copy.value;
+        this.coordinates = new Point(copy.coordinates);
     }
-    Tile(int x)
+    Tile(int val, int x, int y)
     {
-        value = x;
+        value = val;
+        coordinates = new Point(x, y);
+    }
+
+    public Point getCoordinates()
+    {
+        return new Point(coordinates);
     }
 
     public int getValue()

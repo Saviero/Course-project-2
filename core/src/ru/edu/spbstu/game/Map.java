@@ -8,22 +8,31 @@ public class Map {
     private Vector<RoadTile> entrance = new Vector<RoadTile>(); // vector of tiles that lies at the edge of the map
     private int width = 40;
     private int height = 30;
+    private int tileWidth = 20;
     private Zombie[] zombies;
     private int amountOfZombies;
+    private int roadCounter;
 
     public Map() {
+        roadCounter = 0;
         for(int i=0; i<height; ++i)
             for(int j=0;j<width;++j)
-                mapArray[i][j] = new Tile(-1);
+                mapArray[i][j] = new Tile(-1, j, i);
     }
 
     public Map(int width, int height, int tilewidth) {
         mapArray = new Tile[height/tilewidth][width/tilewidth]; //creating an empty map with custom size
+        this.tileWidth = tilewidth;
         this.width = width/tilewidth;
         this.height = height/tilewidth;
+        roadCounter = 0;
         for(int i=0; i<this.height; ++i)
             for(int j=0; j<this.width; ++j)
-                mapArray[i][j] = new Tile(-1);
+                mapArray[i][j] = new Tile(-1, j, i);
+    }
+
+    public int getTileWidth() {
+        return tileWidth;
     }
 
     public int getWidth() {
@@ -34,41 +43,20 @@ public class Map {
         return height;
     }
 
-    private class Point implements Comparable<Point>
-    {
-        public int x = 0;
-        public int y = 0;
-
-        Point(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof Point)) {
-                return false;
-            }
-            Point pt = (Point) obj;
-            return x == pt.x && y == pt.y;
-        }
-
-
-        public int compareTo(Point a)
-        {
-            if (this.y < a.y)
-                return -1;
-            else if (this.y == a.y)
-                return this.x - a.x;
-            else
-                return 1;
-        }
-    }
-
     public Tile getTile(int x, int y) {
+        if (x >= width || x < 0 || y >= height || y < 0)
+        {
+            return null;
+        }
         return mapArray[y][x];
     }
+
+    public Tile getTile(Point a)
+    {
+        return getTile(a.x, a.y);
+    }
+
+    public int getRoadCount() { return roadCounter; }
 
 
     private void connectGraph(Point brush)
@@ -112,10 +100,13 @@ public class Map {
         while (!(nextPoint.isEmpty()))
         {
             //Polling new point
-            pos = nextPoint.poll();
-            while (mapArray[pos.y][pos.x].getValue() != -1)
+            pos = new Point(nextPoint.poll());
+            while (mapArray[pos.y][pos.x].getValue() != -1) {
+                if (nextPoint.isEmpty()) {
+                    return;
+                }
                 pos = nextPoint.poll();
-
+            }
             //Rectangle size
             rectWidth = 2+rand.nextInt(8);
             rectHeight = 2+rand.nextInt(8);
@@ -141,7 +132,7 @@ public class Map {
             //Inside
             for(int i = 0; i < rectHeight; ++i)
                 for(int j = 0; j < rectWidth; ++j)
-                    mapArray[i+pos.y][j+pos.x] = new Tile(0);
+                    mapArray[i+pos.y][j+pos.x] = new Tile(0, j+pos.x, i+pos.y);
 
             //Right side
             for (int i=0; i < rectHeight; ++i)
@@ -150,8 +141,8 @@ public class Map {
                     ++brush.y;
                     continue;
                 }
-                mapArray[brush.y][brush.x] = new RoadTile(1);
-
+                mapArray[brush.y][brush.x] = new RoadTile(1, brush.x, brush.y);
+                roadCounter++;
                 connectGraph(brush);
 
                 ++brush.y;
@@ -164,8 +155,8 @@ public class Map {
                     --brush.x;
                     continue;
                 }
-                mapArray[brush.y][brush.x] = new RoadTile(1);
-
+                mapArray[brush.y][brush.x] = new RoadTile(1, brush.x, brush.y);
+                roadCounter++;
                 connectGraph(brush);
 
                 --brush.x;
@@ -178,8 +169,8 @@ public class Map {
                     --brush.y;
                     continue;
                 }
-                mapArray[brush.y][brush.x] = new RoadTile(1);
-
+                mapArray[brush.y][brush.x] = new RoadTile(1, brush.x, brush.y);
+                roadCounter++;
                 connectGraph(brush);
 
                 --brush.y;
@@ -192,8 +183,8 @@ public class Map {
                     ++brush.x;
                     continue;
                 }
-                mapArray[brush.y][brush.x] = new RoadTile(1);
-
+                mapArray[brush.y][brush.x] = new RoadTile(1, brush.x, brush.y);
+                roadCounter++;
                 connectGraph(brush);
 
                 ++brush.x;

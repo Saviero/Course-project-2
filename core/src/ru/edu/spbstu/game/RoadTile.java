@@ -5,12 +5,29 @@ public class RoadTile extends Tile
 {
 
     public RoadTile[] connections = new RoadTile[4];
-    RoadTile()
+    private Unit unit = null;
+    RoadTile(int value, int x, int y)
     {
-        super();
+        super(value, x, y);
     }
-    RoadTile(int value)
+    RoadTile(RoadTile copy)
     {
-        super(value);
+        super(copy);
+        this.unit = copy.unit;
+        System.arraycopy(copy.connections, 0, this.connections, 0, 4);
+    }
+    public void putUnit(Unit unit)
+    {
+        this.unit = unit;
+    }
+
+    public Unit getUnit()
+    {
+        return unit;
+    }
+
+    public void clearUnit()
+    {
+        unit = null;
     }
 }
