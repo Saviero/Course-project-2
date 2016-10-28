@@ -25,4 +25,9 @@ public class RoadTile extends Tile
     {
         return unit;
     }
+
+    public void clearUnit()
+    {
+        unit = null;
+    }
 }

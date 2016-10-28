@@ -50,7 +50,6 @@ public class Unit {
             path.addFirst(curr);
             curr = pathAll.get(curr);
         }
-        position = path.removeFirst();
     }
 
     public void move(Map map)
@@ -63,7 +62,9 @@ public class Unit {
             coordinates = new Point(destination);
             if (!path.isEmpty())
             {
+                position.clearUnit();
                 position = path.removeFirst();
+                position.putUnit(this);
                 destination = position.getCoordinates();
                 destination.x = destination.x * map.getTileWidth() + map.getTileWidth() / 2;
                 destination.y = destination.y * map.getTileWidth() + map.getTileWidth() / 2;

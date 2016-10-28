@@ -99,7 +99,7 @@ public class Game extends ApplicationAdapter {
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
-        unitCounter = 1;
+        unitCounter = 2;
         selected = null;
 	}
 
@@ -164,28 +164,34 @@ public class Game extends ApplicationAdapter {
         batch.end();
     }
 
-    private void inputSwitch()
-    {
+    private void inputSwitch() {
         if (input.isPressed() && input.getButton() == Buttons.LEFT) // Left mouse button
         {
             Point pos = new Point(input.mousePos());
-            int tileX = pos.x/tileWidth;
-            int tileY = pos.y/tileWidth;
-            Tile tile = map.getTile(tileX, tileY);
-            if (tile == null)
-            {
-                return;
+            for (Unit unit : units) {
+                if (pos.almostEqual(unit.getCoordinates(), tileWidth / 2)) {
+                    selected = unit;
+                    return;
+                } else
+                    selected = null;
             }
+            Tile tile = map.getTile(pos.x / tileWidth, pos.y / tileWidth);
             if (tile instanceof RoadTile) {
-                if (((RoadTile) tile).getUnit() == null && unitCounter > 0) { // if tile of road is without a unit, trying to spawn another one
-                    pos.x -= pos.x % tileWidth;
-                    pos.y -= pos.y % tileWidth;
-                    pos.x += tileWidth / 2;
-                    pos.y += tileWidth / 2;
-                    Unit createUnit = new Unit(pos.x, pos.y, map);
-                    ((RoadTile) tile).putUnit(createUnit);
-                    units.addElement(createUnit);
-                    unitCounter--;
+                if (((RoadTile) tile).getUnit() == null) {
+                    if (unitCounter > 0) { // if tile of road is without a unit, trying to spawn another one
+                        pos.x -= pos.x % tileWidth;
+                        pos.y -= pos.y % tileWidth;
+                        pos.x += tileWidth / 2;
+                        pos.y += tileWidth / 2;
+                        Unit createUnit = new Unit(pos.x, pos.y, map);
+                        ((RoadTile) tile).putUnit(createUnit);
+                        units.addElement(createUnit);
+                        unitCounter--;
+                    }
+                    else // otherwise, de-selecting unit
+                    {
+                        selected = null;
+                    }
                 }
                 else if (((RoadTile) tile).getUnit() != null) // if there's a unit, selecting it
                 {
@@ -195,16 +201,15 @@ public class Game extends ApplicationAdapter {
         }
         if (input.isPressed() && input.getButton() == Buttons.RIGHT && selected != null) //Right mouse button
         {
-            Point pos = new Point(input.mousePos());
-            int tileX = pos.x/tileWidth;
-            int tileY = pos.y/tileWidth;
-            Tile tile = map.getTile(tileX, tileY);
-            if (tile == null)
-            {
+            Point posMouse = new Point(input.mousePos());
+            posMouse.x /= tileWidth;
+            posMouse.y /= tileWidth;
+            Tile tile = map.getTile(posMouse);
+            if (tile == null) {
                 return;
             }
             if (tile instanceof RoadTile) // if there's selected unit, trying to move it
-                selected.setTarget(tileX, tileY, map);
+                selected.setTarget(posMouse.x, posMouse.y, map);
         }
     }
 

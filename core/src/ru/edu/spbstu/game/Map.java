@@ -51,6 +51,11 @@ public class Map {
         return mapArray[y][x];
     }
 
+    public Tile getTile(Point a)
+    {
+        return getTile(a.x, a.y);
+    }
+
     public int getRoadCount() { return roadCounter; }
 
 
