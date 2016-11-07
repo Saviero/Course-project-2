@@ -63,70 +63,15 @@ public class Zombie {
 
             for (int j = 0; j < 4; ++j) { //Находим все возможные пути движения
 
-                switch (j) {
-                    case 0:
-                        if (y != map.getHeight() - 1) {
-                            if ((map.getTile(x, y + 1).getValue()) == 1) {
-                                directions[0] = 1; //Если путь в данном направлении есть
-                            }
-                            else {
-                                directions[0] = 0; //Если его нет
-                            }
-                        }
-                        else {
-                            directions[0] = 0;
-                        }
-                        break;
+                directions[j] =(((RoadTile)map.getTile(x,y)).connections[j] != null) ? 1 : 0;
 
-                    case 1:
-                        if (x != map.getWidth() - 1) {
-                            if (map.getTile(x + 1, y).getValue() == 1) {
-                                directions[1] = 1;
-                            }
-                            else {
-                                directions[1] = 0;
-                            }
-                        }
-                        else {
-                            directions[1] = 0;
-                        }
-                        break;
-
-                    case 2:
-                        if (y != 0) {
-                            if (map.getTile(x, y - 1).getValue() == 1) {
-                                directions[2] = 1;
-                            }
-                            else {
-                                directions[2] = 0;
-                            }
-                        }
-                        else {
-                            directions[2] = 0;
-                        }
-                        break;
-
-                    case 3:
-                        if (x != 0) {
-                            if (map.getTile(x - 1, y).getValue() == 1) {
-                                directions[3] = 1;
-                            }
-                            else {
-                                directions[3] = 0;
-                            }
-                        }
-                        else {
-                            directions[3] = 0;
-                        }
-                        break;
-                }
             }
 
-            if (Math.abs(vx) > Math.abs(vy)) { //Определяем, откуда пришел зомби
-                directions[2 + vx] = 2;
+            if (Math.abs(vy) > Math.abs(vx)) { //Определяем, откуда пришел зомби
+                directions[2 - vy] = 2;
             }
             else {
-                directions[1 + vx] = 2;
+                directions[1 - vx] = 2;
             }
 
             int k = rand.nextInt(4); //Выбираем случайное направление движения
@@ -155,7 +100,7 @@ public class Zombie {
                 }
             }
 
-            rotate(((res % 2 == 1) ? 2 - res : 0), ((res % 2 == 0) ? 1 - res : 0)); //Поворачиваем зомби
+            rotate(((res % 2 == 0) ? - 1 + res : 0), ((res % 2 == 1) ? - 2 + res : 0)); //Поворачиваем зомби
             prevCrossing.x = x; //Запоминаем перекресток
             prevCrossing.y = y;
         }

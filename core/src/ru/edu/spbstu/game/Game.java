@@ -183,18 +183,19 @@ public class Game extends ApplicationAdapter {
         for (int i = 0; i < zombieCounter; ++i)
         {
             brush = new Point(zombies[i].getCoordinates());
+            brush.y = height  - brush.y;
 
             /*
              Zombie coordinates pointing at the centre of tile and y coordinate is shifted;
              shifting y to match batch coordinates and make coordinates pointing at bottom left corner of tile
             */
-            brush.y = height  - brush.y;
+            /*
             if (map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20) == null || map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20).getValue() != 1) {
                 brush.x -= texture.getWidth();
             }
             if (map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20) == null || map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20).getValue() != 1) {
                 brush.y -= texture.getHeight();
-            }
+            }*/
 //            brush.y -= texture.getHeight()/2;
             batch.draw(texture, brush.x, brush.y);
             zombies[i].walk(map);
