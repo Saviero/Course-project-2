@@ -151,7 +151,7 @@ public class Game extends ApplicationAdapter {
          */
         Texture texture = textures.get("Unit");
         Texture texture_selected = textures.get("Unit_selected");
-        Point brush;
+        FloatPoint brush;
         batch.begin();
         for (Unit unit : units)
         {
