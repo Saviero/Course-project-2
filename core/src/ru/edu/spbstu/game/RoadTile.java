@@ -9,6 +9,9 @@ public class RoadTile extends Tile
     RoadTile(int value, int x, int y)
     {
         super(value, x, y);
+        for (RoadTile tile : connections) {
+            tile = null;
+        }
     }
     RoadTile(RoadTile copy)
     {
@@ -30,4 +33,5 @@ public class RoadTile extends Tile
     {
         unit = null;
     }
+
 }

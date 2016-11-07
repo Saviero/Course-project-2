@@ -77,6 +77,8 @@ public class Game extends ApplicationAdapter {
     Vector<Unit> units = new Vector<Unit>(); // all units generated on map
     int unitCounter; // how much units user can spawn at the time
     Unit selected; // selected unit
+    int zombieCounter; //the amount of zombies to kill
+    Zombie[ ] zombies; //all the zombies
 
     private void loadTextures()
     {
@@ -84,6 +86,8 @@ public class Game extends ApplicationAdapter {
         textures.put("Unit", load);
         load = new Texture("unit_selected.jpg");
         textures.put("Unit_selected", load);
+        load = new Texture("zombie.jpg");
+        textures.put("Zombie", load);
     }
 	
 	@Override
@@ -101,6 +105,11 @@ public class Game extends ApplicationAdapter {
         Gdx.input.setInputProcessor(input);
         unitCounter = 2;
         selected = null;
+        zombieCounter = 100;
+        zombies = new Zombie[zombieCounter];
+        for (int i = 0; i < zombieCounter; ++i) {
+            zombies[i] = new Zombie(map);
+        }
 	}
 
 	@Override
@@ -108,6 +117,7 @@ public class Game extends ApplicationAdapter {
         camera.update();
         mapRender();
         unitRender();
+        zombieRender( );
         inputSwitch();
 	}
 
@@ -141,7 +151,7 @@ public class Game extends ApplicationAdapter {
          */
         Texture texture = textures.get("Unit");
         Texture texture_selected = textures.get("Unit_selected");
-        Point brush;
+        FloatPoint brush;
         batch.begin();
         for (Unit unit : units)
         {
@@ -163,6 +173,36 @@ public class Game extends ApplicationAdapter {
         }
         batch.end();
     }
+
+
+    private void zombieRender( ) {
+        //Here we make our zombies move
+        Texture texture = textures.get("Zombie");
+        Point brush;
+        batch.begin();
+        for (int i = 0; i < zombieCounter; ++i)
+        {
+            brush = new Point(zombies[i].getCoordinates());
+            brush.y = height  - brush.y;
+
+            /*
+             Zombie coordinates pointing at the centre of tile and y coordinate is shifted;
+             shifting y to match batch coordinates and make coordinates pointing at bottom left corner of tile
+            */
+            /*
+            if (map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20) == null || map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20).getValue() != 1) {
+                brush.x -= texture.getWidth();
+            }
+            if (map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20) == null || map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20).getValue() != 1) {
+                brush.y -= texture.getHeight();
+            }*/
+//            brush.y -= texture.getHeight()/2;
+            batch.draw(texture, brush.x, brush.y);
+            zombies[i].walk(map);
+        }
+        batch.end();
+    }
+
 
     private void inputSwitch() {
         if (input.isPressed() && input.getButton() == Buttons.LEFT) // Left mouse button
@@ -208,8 +248,9 @@ public class Game extends ApplicationAdapter {
             if (tile == null) {
                 return;
             }
-            if (tile instanceof RoadTile) // if there's selected unit, trying to move it
+            if (tile instanceof RoadTile && ((RoadTile) tile).getUnit() == null) { // if there's selected unit, trying to move it
                 selected.setTarget(posMouse.x, posMouse.y, map);
+            }
         }
     }
 

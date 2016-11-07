@@ -1,17 +1,24 @@
 package ru.edu.spbstu.game;
 
-public class Point implements Comparable<Point>
-{
-    public int x;
-    public int y;
 
-    Point(int x, int y)
+public class FloatPoint implements Comparable<Point>
+{
+    public float x;
+    public float y;
+
+    FloatPoint(float x, float y)
     {
         this.x = x;
         this.y = y;
     }
 
-    Point (Point point)
+    FloatPoint (Point point)
+    {
+        this.x = point.x;
+        this.y = point.y;
+    }
+
+    FloatPoint (FloatPoint point)
     {
         this.x = point.x;
         this.y = point.y;
@@ -19,14 +26,14 @@ public class Point implements Comparable<Point>
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Point)) {
+        if (!(obj instanceof FloatPoint)) {
             return false;
         }
-        Point pt = (Point) obj;
+        FloatPoint pt = (FloatPoint) obj;
         return x == pt.x && y == pt.y;
     }
 
-    public boolean almostEqual(Point point, double delta)
+    public boolean almostEqual(FloatPoint point, double delta)
     {
         /*
          This method checks if point is inside a circle with center of this and radius of delta
@@ -34,7 +41,7 @@ public class Point implements Comparable<Point>
         return ((this.x-point.x)*(this.x-point.x)+(this.y-point.y)*(this.y-point.y))<delta*delta;
     }
 
-    public boolean almostEqual(FloatPoint point, double delta)
+    public boolean almostEqual(Point point, double delta)
     {
         /*
          This method checks if point is inside a circle with center of this and radius of delta
@@ -47,7 +54,7 @@ public class Point implements Comparable<Point>
         if (this.y < a.y)
             return -1;
         else if (this.y == a.y)
-            return this.x - a.x;
+            return (int)this.x - a.x;
         else
             return 1;
     }

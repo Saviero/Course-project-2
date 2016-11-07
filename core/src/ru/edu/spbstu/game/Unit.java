@@ -4,14 +4,14 @@ import java.util.ArrayDeque;
 import java.util.Hashtable;
 
 public class Unit {
-    private Point coordinates;
+    private FloatPoint coordinates;
     private RoadTile position;
     private ArrayDeque<RoadTile> path;
-    private int velocity = 2;
+    private double velocity = 0.5;
 
     Unit(int x, int y, Map map)
     {
-        coordinates = new Point(x, y);
+        coordinates = new FloatPoint(x, y);
         path = new ArrayDeque<RoadTile>();
         position = (RoadTile) map.getTile(x/map.getTileWidth(), y/map.getTileWidth());
     }
@@ -59,7 +59,7 @@ public class Unit {
         destination.y = destination.y * map.getTileWidth() + map.getTileWidth() / 2;
         if (coordinates.almostEqual(destination, velocity))
         {
-            coordinates = new Point(destination);
+            coordinates = new FloatPoint(destination);
             if (!path.isEmpty())
             {
                 position.clearUnit();
@@ -88,8 +88,8 @@ public class Unit {
         }
     }
 
-    public Point getCoordinates()
+    public FloatPoint getCoordinates()
     {
-        return new Point(coordinates);
+        return new FloatPoint(coordinates);
     }
 }
