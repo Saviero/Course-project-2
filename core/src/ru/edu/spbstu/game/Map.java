@@ -69,22 +69,22 @@ public class Map {
         }
         // Looking at adjancent tiles and connecting them
         // Left tile
-        if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].getValue() == 1) {
+        if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1] instanceof RoadTile) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[0] = (RoadTile) mapArray[brush.y][brush.x - 1];
             ((RoadTile) mapArray[brush.y][brush.x-1]).connections[2] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Right tile
-        if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].getValue() == 1) {
+        if (brush.x + 1 < width && mapArray[brush.y][brush.x+1] instanceof RoadTile) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[2] = (RoadTile) mapArray[brush.y][brush.x + 1];
             ((RoadTile) mapArray[brush.y][brush.x + 1]).connections[0] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Up tile
-        if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].getValue() == 1) {
+        if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x] instanceof RoadTile) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[1] = (RoadTile) mapArray[brush.y - 1][brush.x];
             ((RoadTile) mapArray[brush.y - 1][brush.x]).connections[3] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Down tile
-        if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].getValue() == 1) {
+        if (brush.y + 1 < height && mapArray[brush.y+1][brush.x] instanceof RoadTile) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[3] = (RoadTile) mapArray[brush.y + 1][brush.x];
             ((RoadTile) mapArray[brush.y + 1][brush.x]).connections[1] = (RoadTile) mapArray[brush.y][brush.x];
         }
