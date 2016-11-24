@@ -105,10 +105,10 @@ public class Game extends ApplicationAdapter {
         Gdx.input.setInputProcessor(input);
         unitCounter = 2;
         selected = null;
-        zombieCounter = 100;
+        zombieCounter = 200;
         zombies = new Zombie[zombieCounter];
         for (int i = 0; i < zombieCounter; ++i) {
-            zombies[i] = new Zombie(map);
+            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth(), textures.get("Zombie").getHeight());
         }
 	}
 
@@ -178,11 +178,11 @@ public class Game extends ApplicationAdapter {
     private void zombieRender( ) {
         //Here we make our zombies move
         Texture texture = textures.get("Zombie");
-        Point brush;
+        FloatPoint brush;
         batch.begin();
         for (int i = 0; i < zombieCounter; ++i)
         {
-            brush = new Point(zombies[i].getCoordinates());
+            brush = new FloatPoint(zombies[i].getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -197,7 +197,7 @@ public class Game extends ApplicationAdapter {
                 brush.y -= texture.getHeight();
             }*/
 //            brush.y -= texture.getHeight()/2;
-            batch.draw(texture, brush.x, brush.y);
+            batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
             zombies[i].walk(map);
         }
         batch.end();

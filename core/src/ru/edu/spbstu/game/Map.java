@@ -9,8 +9,6 @@ public class Map {
     private int width = 40;
     private int height = 30;
     private int tileWidth = 20;
-    private Zombie[] zombies;
-    private int amountOfZombies;
     private int roadCounter;
 
     public Map() {
@@ -61,7 +59,6 @@ public class Map {
     }
 
     public int getRoadCount() { return roadCounter; }
-
 
     private void connectGraph(Point brush)
     {

@@ -3,81 +3,119 @@ import java.util.*;
 
 public class Zombie {
 
-    private Point coordinates; //Координата зомби по оси абсцисс
+    private FloatPoint coordinates; //Zombie's coordinates
 
-    private int vx; //Скорость по оси абсцисс
+    private int vx; //Speed vector abscissa
 
-    private int vy; //Скорость по оси ординат
+    private int vy; //Speed vector ordinate
 
-    private Point prevCrossing = new Point(-1, -1); //Абсцисса предыдущего перекрестка
+    private Point prevCrossing = new Point(-1, -1); //Previous crossing coordinates
 
-    public Zombie(Map map) { //Generates zombie on a random entrance tile
+    private int spriteWidth; //The width of the zombie sprite
+
+    private int spriteHeight; //The height of the zombie sprite
+
+    private int delayed = 0; //The amount of times the decision of choosing new direction was delayed
+
+    public Zombie(Map map, int spriteWidth, int spriteHeight) { //Generates zombie on a random entrance tile
+        this.spriteWidth = spriteWidth;
+        this.spriteHeight = spriteHeight;
         Random rand = new Random( );
+        coordinates = new FloatPoint( );
         Point point = map.getEntrance().elementAt(rand.nextInt(map.getEntrance().size())).getCoordinates();
-        coordinates = point;
-        if (coordinates.y == 0 || coordinates.y == map.getHeight() - 1)
+        if (point.y == 0 || point.y == map.getHeight() - 1)
         {
-            if (coordinates.y == 0)
+            if (point.y == 0)
             {
+                coordinates.y = 0;
                 vy = 1;
             }
             else
             {
-                coordinates.y = (coordinates.y + 1) * 20;
+                coordinates.y = (float)((point.y + 1) * map.getTileWidth());
                 vy = -1;
             }
             vx = 0;
-            coordinates.x = coordinates.x * 20 + rand.nextInt(20);
+            coordinates.x = (float)(point.x * map.getTileWidth() + spriteWidth / 2 + 1 + rand.nextInt(map.getTileWidth( ) - spriteWidth - 2));
         }
         else
         {
-            if (coordinates.x == 0)
+            if (point.x == 0)
             {
+                coordinates.x = 0;
                 vx = 1;
             }
             else
             {
-                coordinates.x = (coordinates.x + 1) * 20;
+                coordinates.x = (float)((point.x + 1) * map.getTileWidth());
                 vx = -1;
             }
             vy = 0;
-            coordinates.y = coordinates.y * 20 + rand.nextInt(20);
+            coordinates.y = (float)(point.y * map.getTileWidth() + spriteHeight / 2 + 1 + rand.nextInt(map.getTileWidth( ) - spriteHeight - 2));
         }
     }
 
-    public Zombie(Point coordinates, int vx, int vy) { //Генерирует зомби с нужными координатами
-        this.coordinates = coordinates;
+    public Zombie(FloatPoint coordinates, int vx, int vy, int spriteWidth, int spriteHeight, Map map) { //Generates zombie with a pre-set coordinates
+        if (coordinates.x - map.getTileWidth() * ((int)coordinates.x / map.getTileWidth()) > map.getTileWidth() - spriteWidth / 2 - 1) {
+            this.coordinates.x = coordinates.x - spriteWidth / 2;
+        }
+        else if (coordinates.x - map.getTileWidth() * ((int)coordinates.x / map.getTileWidth()) < spriteWidth / 2 + 1) {
+            this.coordinates.x = coordinates.x + spriteWidth / 2;
+        }
+        if (coordinates.y - map.getTileWidth() * ((int)coordinates.y / map.getTileWidth()) > map.getTileWidth() - spriteHeight / 2 - 1) {
+            this.coordinates.y = coordinates.y - spriteHeight / 2;
+        }
+        else if (coordinates.y - map.getTileWidth() * ((int)coordinates.y / map.getTileWidth()) < spriteHeight / 2 + 1) {
+            this.coordinates.y = coordinates.y + spriteHeight / 2;
+        }
         this.vx = vx;
         this.vy = vy;
+        this.spriteWidth = spriteWidth;
+        this.spriteHeight = spriteHeight;
     }
 
-    public void walk(Map map) {
+    public void walk(Map map) { //Chooses the direction zombie walks in and changes its coordinates
 
-        int x = (coordinates.x / 20 != map.getWidth()) ? coordinates.x / 20 : coordinates.x / 20 - 1;
-        int y = (coordinates.y / 20 != map.getHeight()) ? coordinates.y / 20 : coordinates.y / 20 - 1;
+        int x = ((int)Math.floor(coordinates.x) / map.getTileWidth() != map.getWidth()) ?
+                (int)Math.floor(coordinates.x) / map.getTileWidth() : map.getWidth() - 1;
+        int y = ((int)Math.floor(coordinates.y) / map.getTileWidth() != map.getHeight()) ?
+                (int)Math.floor(coordinates.y) / map.getTileWidth() : map.getHeight() - 1;
 
-        int [] directions = new int [4]; //Массив допустимых направлений движения
+        int [] directions = new int [4]; //An array of possible directions
         Random rand = new Random();
+        delayed = (rand.nextInt(30) < 2 || delayed == 24) ? -1 : delayed + 1;
 
-        if (prevCrossing.x != x || prevCrossing.y != y) { //Если зомби перешел на новую плитку
+        int left = (int)(coordinates.x - spriteWidth / 2 - 1) / map.getTileWidth( );
+        left = (left <= 0) ? 0 : left;
+        int right = (int)(coordinates.x + spriteWidth / 2 + 1) / map.getTileWidth( );
+        right = (right >= map.getWidth()) ? map.getWidth() - 1 : right;
+        int top = (int)(coordinates.y - spriteWidth / 2 - 1) / map.getTileWidth();
+        top = (top <= 0) ? 0 : top;
+        int bottom = (int)(coordinates.y + spriteWidth / 2 + 1) / map.getTileWidth();
+        bottom = (bottom >= map.getHeight()) ? map.getHeight() - 1 : bottom;
 
-            for (int j = 0; j < 4; ++j) { //Находим все возможные пути движения
+        if ((prevCrossing.x != x || prevCrossing.y != y) && (delayed == -1) &&
+                (map.getTile(left, top) == map.getTile(right, bottom)) &&
+                (map.getTile(right, bottom) == map.getTile(left, bottom)) &&
+                (map.getTile(left, bottom) == map.getTile(right, top))) { //If zombie's tile has changed
 
+            for (int j = 0; j < 4; ++j) { //Checking possible directions
+                //TODO: find out what the hell is going on here
                 directions[j] =(((RoadTile)map.getTile(x,y)).connections[j] != null) ? 1 : 0;
 
             }
 
-            if (Math.abs(vy) > Math.abs(vx)) { //Определяем, откуда пришел зомби
+            if (Math.abs(vy) > Math.abs(vx)) { //Checking where zombie has come from
                 directions[2 - vy] = 2;
             }
             else {
                 directions[1 - vx] = 2;
             }
 
-            int k = rand.nextInt(4); //Выбираем случайное направление движения
+            int k = rand.nextInt(4); //Choosing random direction
             int res = 4;
-            for (int l = 0; Math.abs(l) < 4; l++) { //Проверяем его
-                if (directions[k] == 2) { //Если отсюда пришел зомби, запоминаем направленпие и идем дальше в поисках нового и лучшего
+            for (int l = 0; Math.abs(l) < 4; l++) { //Checking if th direction is valid
+                if (directions[k] == 2) { //If it's where zombie came from, we saving it and ceep checking for another directions
                     res = k;
                     if (k == 3) {
                         k = 0;
@@ -86,11 +124,11 @@ public class Zombie {
                         k++;
                     }
                 }
-                if (directions[k] == 1) { //Если зомби здесь еще не был, бежим навстречу приключениям
+                if (directions[k] == 1) { //If there is one, choose it
                     res = k;
                     break;
                 }
-                if (directions[k] == 0) { //Если сюда нельзя, продолжаем поиск маршрута
+                if (directions[k] == 0) { //If the direction is invalid, skip it
                     if (k == 3) {
                         k = 0;
                     }
@@ -100,41 +138,42 @@ public class Zombie {
                 }
             }
 
-            rotate(((res % 2 == 0) ? - 1 + res : 0), ((res % 2 == 1) ? - 2 + res : 0)); //Поворачиваем зомби
-            prevCrossing.x = x; //Запоминаем перекресток
+            rotate(((res % 2 == 0) ? - 1 + res : 0), ((res % 2 == 1) ? - 2 + res : 0)); //Rotating zombie
+            prevCrossing.x = x; //Saving the crossing
             prevCrossing.y = y;
+            delayed = 0;
         }
-        move(); //Двигаем зомби
+        move(map); //Moving a zombie
     }
 
-    public Point getCoordinates(){return this.coordinates;}
+    public FloatPoint getCoordinates(){return this.coordinates;}
 
     public int getVx(){return this.vx;}
 
     public int getVy(){return this.vy;}
 
-    private void move() { //Перемещает зомби по дороге и поворачивает при необходимости
+    private void move(Map map) { //Moves a zombie
         Random rand = new Random( );
+        float forward = rand.nextFloat() / 2;
+        float sideward = (float)Math.pow(-1, rand.nextInt(2)) * forward / 4;
+        float y = coordinates.y - map.getTileWidth() * ((int)coordinates.y / map.getTileWidth());
+        float x = coordinates.x - map.getTileWidth() * ((int)coordinates.x / map.getTileWidth());
 
-        if (vx > 0) { //Перемещает
-            coordinates.x += rand.nextInt(1) + 1;
-            //y += rand.nextInt(3) - 1;
+        if (vy == 0) {
+            if (y + sideward < map.getTileWidth() - spriteHeight/ 2 - 1 && y + sideward > spriteHeight / 2 + 1) {
+                this.coordinates.y += sideward;
+            }
+            coordinates.x += vx * forward;
         }
-        else if (vx < 0) {
-            coordinates.x -= rand.nextInt(1) + 1;
-            //y += rand.nextInt(3) - 1;
-        }
-        else if (vy > 0) {
-            //x += rand.nextInt(3) - 1;
-            coordinates.y += rand.nextInt(1) + 1;
-        }
-        else {
-            //x += rand.nextInt(3) - 1;
-            coordinates.y -= rand.nextInt(1) + 1;
+        else if (vx == 0) {
+            if (x + sideward < map.getTileWidth() - spriteHeight/ 2 - 1 && x + sideward > spriteHeight / 2 + 1) {
+                this.coordinates.x += sideward;
+            }
+            coordinates.y += vy * forward;
         }
     }
 
-    private void rotate(int vx, int vy) { //Поворачивает зомби в нужном нам направлении
+    private void rotate(int vx, int vy) { //Rotating zombie in a stated direction
         this.vx = vx;
         this.vy = vy;
     }

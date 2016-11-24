@@ -21,6 +21,8 @@ public class Tile
         return new Point(coordinates);
     }
 
+    public FloatPoint getFloatCoordinates( ) { return new FloatPoint((float)coordinates.x, (float)coordinates.y); }
+
     public int getValue()
     {
         return value;

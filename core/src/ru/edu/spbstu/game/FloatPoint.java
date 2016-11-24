@@ -6,6 +6,12 @@ public class FloatPoint implements Comparable<Point>
     public float x;
     public float y;
 
+    FloatPoint( )
+    {
+        this.x = 0;
+        this.y = 0;
+    }
+
     FloatPoint(float x, float y)
     {
         this.x = x;
