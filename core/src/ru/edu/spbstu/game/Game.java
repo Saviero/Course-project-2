@@ -100,15 +100,16 @@ public class Game extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 		map = new Map(width, height, tileWidth);
         map.generate();
+        map.bcd(map.getEntrance().firstElement());
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
         unitCounter = 2;
         selected = null;
-        zombieCounter = 100;
+        zombieCounter = 200;
         zombies = new Zombie[zombieCounter];
         for (int i = 0; i < zombieCounter; ++i) {
-            zombies[i] = new Zombie(map);
+            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth(), textures.get("Zombie").getHeight());
         }
 	}
 
@@ -133,7 +134,7 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setColor(1, 1, 1, 1);
         for (int i=(map.getHeight()-1); i>=0; --i) {
             for(int j=0; j<map.getWidth(); ++j) {
-                if (map.getTile(j, i).getValue() == 1 || map.getTile(j, i).getValue() == 2) {
+                if (map.getTile(j, i) instanceof RoadTile) {
                     shapeRenderer.rect(brush.x, brush.y, tileWidth, tileWidth);
                 }
                 brush.x += tileWidth;
@@ -178,11 +179,11 @@ public class Game extends ApplicationAdapter {
     private void zombieRender( ) {
         //Here we make our zombies move
         Texture texture = textures.get("Zombie");
-        Point brush;
+        FloatPoint brush;
         batch.begin();
         for (int i = 0; i < zombieCounter; ++i)
         {
-            brush = new Point(zombies[i].getCoordinates());
+            brush = new FloatPoint(zombies[i].getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -197,7 +198,7 @@ public class Game extends ApplicationAdapter {
                 brush.y -= texture.getHeight();
             }*/
 //            brush.y -= texture.getHeight()/2;
-            batch.draw(texture, brush.x, brush.y);
+            batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
             zombies[i].walk(map);
         }
         batch.end();

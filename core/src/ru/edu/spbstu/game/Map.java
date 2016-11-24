@@ -9,8 +9,6 @@ public class Map {
     private int width = 40;
     private int height = 30;
     private int tileWidth = 20;
-    private Zombie[] zombies;
-    private int amountOfZombies;
     private int roadCounter;
 
     public Map() {
@@ -62,7 +60,6 @@ public class Map {
 
     public int getRoadCount() { return roadCounter; }
 
-
     private void connectGraph(Point brush)
     {
         // Adding tile as entrance
@@ -72,22 +69,22 @@ public class Map {
         }
         // Looking at adjancent tiles and connecting them
         // Left tile
-        if (brush.x - 1 >= 0 && mapArray[brush.y][brush.x-1].getValue() == 1) {
+        if (brush.x - 1 >= 0 && (mapArray[brush.y][brush.x-1] instanceof RoadTile)) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[0] = (RoadTile) mapArray[brush.y][brush.x - 1];
             ((RoadTile) mapArray[brush.y][brush.x-1]).connections[2] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Right tile
-        if (brush.x + 1 < width && mapArray[brush.y][brush.x+1].getValue() == 1) {
+        if (brush.x + 1 < width && (mapArray[brush.y][brush.x+1] instanceof RoadTile)) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[2] = (RoadTile) mapArray[brush.y][brush.x + 1];
             ((RoadTile) mapArray[brush.y][brush.x + 1]).connections[0] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Up tile
-        if (brush.y - 1 >= 0 && mapArray[brush.y-1][brush.x].getValue() == 1) {
+        if (brush.y - 1 >= 0 && (mapArray[brush.y-1][brush.x] instanceof RoadTile)) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[1] = (RoadTile) mapArray[brush.y - 1][brush.x];
             ((RoadTile) mapArray[brush.y - 1][brush.x]).connections[3] = (RoadTile) mapArray[brush.y][brush.x];
         }
         // Down tile
-        if (brush.y + 1 < height && mapArray[brush.y+1][brush.x].getValue() == 1) {
+        if (brush.y + 1 < height && (mapArray[brush.y+1][brush.x] instanceof RoadTile)) {
             ((RoadTile) mapArray[brush.y][brush.x]).connections[3] = (RoadTile) mapArray[brush.y + 1][brush.x];
             ((RoadTile) mapArray[brush.y + 1][brush.x]).connections[1] = (RoadTile) mapArray[brush.y][brush.x];
         }
@@ -101,8 +98,7 @@ public class Map {
         Point brush = new Point(0, 0);
         int rectWidth;
         int rectHeight;
-        while (!(nextPoint.isEmpty()))
-        {
+        while (!(nextPoint.isEmpty())) {
             //Polling new point
             pos = new Point(nextPoint.poll());
             while (mapArray[pos.y][pos.x].getValue() != -1) {
@@ -112,16 +108,14 @@ public class Map {
                 pos = nextPoint.poll();
             }
             //Rectangle size
-            rectWidth = 2+rand.nextInt(8);
-            rectHeight = 2+rand.nextInt(8);
+            rectWidth = 2 + rand.nextInt(8);
+            rectHeight = 2 + rand.nextInt(8);
 
             //Adjusting rectangle size to map borders
-            if (pos.x + rectWidth >= width -1)
-            {
+            if (pos.x + rectWidth >= width - 1) {
                 rectWidth = width - pos.x;
             }
-            if (pos.y + rectHeight >= height - 1)
-            {
+            if (pos.y + rectHeight >= height - 1) {
                 rectHeight = height - pos.y;
             }
 
@@ -130,18 +124,17 @@ public class Map {
                 --rectWidth;
 
             //Initializing the brush
-            brush.x = pos.x+rectWidth;
+            brush.x = pos.x + rectWidth;
             brush.y = pos.y;
 
             //Inside
-            for(int i = 0; i < rectHeight; ++i)
-                for(int j = 0; j < rectWidth; ++j)
-                    mapArray[i+pos.y][j+pos.x] = new Tile(0, j+pos.x, i+pos.y);
+            for (int i = 0; i < rectHeight; ++i)
+                for (int j = 0; j < rectWidth; ++j)
+                    mapArray[i + pos.y][j + pos.x] = new Tile(0, j + pos.x, i + pos.y);
 
             //Right side
-            for (int i=0; i < rectHeight; ++i)
-            {
-                if ((brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) || mapArray[brush.y][brush.x].getValue() == 1) {
+            for (int i = 0; i < rectHeight; ++i) {
+                if ((brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0) || mapArray[brush.y][brush.x] instanceof RoadTile) {
                     ++brush.y;
                     continue;
                 }
@@ -153,9 +146,8 @@ public class Map {
             }
 
             //Down side
-            for (int i = -1; i < rectWidth; ++i)
-            {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].getValue() == 1) {
+            for (int i = -1; i < rectWidth; ++i) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x] instanceof RoadTile) {
                     --brush.x;
                     continue;
                 }
@@ -167,9 +159,8 @@ public class Map {
             }
 
             //Left side
-            for (int i = -1; i < rectHeight; ++i)
-            {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].getValue() == 1) {
+            for (int i = -1; i < rectHeight; ++i) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x] instanceof RoadTile) {
                     --brush.y;
                     continue;
                 }
@@ -181,9 +172,8 @@ public class Map {
             }
 
             //Up side
-            for (int i = -1; i < rectWidth; ++i)
-            {
-                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x].getValue() == 1) {
+            for (int i = -1; i < rectWidth; ++i) {
+                if (brush.y >= height || brush.x >= width || brush.x < 0 || brush.y < 0 || mapArray[brush.y][brush.x] instanceof RoadTile) {
                     ++brush.x;
                     continue;
                 }
@@ -195,18 +185,39 @@ public class Map {
             }
 
             //Adding next points
-            if (pos.x + rectWidth + 1 < width && mapArray[pos.y][pos.x+rectWidth+1].getValue() == -1) {
+            if (pos.x + rectWidth + 1 < width && mapArray[pos.y][pos.x + rectWidth + 1].getValue() == -1) {
 
                 nextPoint.add(new Point(pos.x + rectWidth + 1, pos.y));
             }
-            if (pos.y + rectHeight + 1 < height && mapArray[pos.y + rectHeight + 1][pos.x].getValue() == -1 ) {
+            if (pos.y + rectHeight + 1 < height && mapArray[pos.y + rectHeight + 1][pos.x].getValue() == -1) {
 
                 nextPoint.add(new Point(pos.x, pos.y + rectHeight + 1));
             }
 
         }
-
     }
 
-
+    public void bcd(RoadTile start)
+    {
+        LinkedList<RoadTile> next = new LinkedList<RoadTile>();
+        HashSet<RoadTile> used = new HashSet<RoadTile>();
+        next.addLast(start);
+        RoadTile current;
+        while (!next.isEmpty())
+        {
+            current = next.pollFirst();
+            for (RoadTile neighbor : current.connections ) {
+                if (neighbor != null){
+                    Point coordinates = neighbor.getCoordinates();
+                    if (!(mapArray[coordinates.y][coordinates.x] instanceof RoadTile)) {
+                        System.out.println(coordinates.x + " " + coordinates.y + "\n");
+                    } else if (!used.contains(neighbor)) {
+                        next.addLast(neighbor);
+                        used.add(neighbor);
+                    }
+                }
+            }
+        }
+    }
 }
+
