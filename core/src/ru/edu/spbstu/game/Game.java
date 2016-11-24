@@ -100,6 +100,7 @@ public class Game extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 		map = new Map(width, height, tileWidth);
         map.generate();
+        map.bcd(map.getEntrance().firstElement());
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
@@ -133,7 +134,7 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setColor(1, 1, 1, 1);
         for (int i=(map.getHeight()-1); i>=0; --i) {
             for(int j=0; j<map.getWidth(); ++j) {
-                if (map.getTile(j, i).getValue() == 1 || map.getTile(j, i).getValue() == 2) {
+                if (map.getTile(j, i) instanceof RoadTile) {
                     shapeRenderer.rect(brush.x, brush.y, tileWidth, tileWidth);
                 }
                 brush.x += tileWidth;
