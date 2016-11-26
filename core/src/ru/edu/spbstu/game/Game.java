@@ -108,7 +108,7 @@ public class Game extends ApplicationAdapter {
         zombieCounter = 200;
         zombies = new Zombie[zombieCounter];
         for (int i = 0; i < zombieCounter; ++i) {
-            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth(), textures.get("Zombie").getHeight());
+            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth());
         }
 	}
 
