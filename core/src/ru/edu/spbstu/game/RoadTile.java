@@ -1,37 +1,52 @@
 package ru.edu.spbstu.game;
+import java.util.ArrayList;
 
 
-public class RoadTile extends Tile
+class RoadTile extends Tile
 {
 
-    public RoadTile[] connections = new RoadTile[4];
+    RoadTile[] connections = new RoadTile[4];
+
     private Unit unit = null;
+
+    private ArrayList<Zombie> zombies;
+
     RoadTile(int value, int x, int y)
     {
         super(value, x, y);
+        zombies = new ArrayList<Zombie>();
         for (RoadTile tile : connections) {
             tile = null;
         }
     }
+
     RoadTile(RoadTile copy)
     {
         super(copy);
+        this.zombies = copy.zombies;
         this.unit = copy.unit;
         System.arraycopy(copy.connections, 0, this.connections, 0, 4);
     }
-    public void putUnit(Unit unit)
+
+    void putUnit(Unit unit)
     {
         this.unit = unit;
     }
 
-    public Unit getUnit()
+    Unit getUnit()
     {
         return unit;
     }
 
-    public void clearUnit()
+    void clearUnit()
     {
         unit = null;
     }
+
+    void putZombie(Zombie zombie) { zombies.add(zombie); }
+
+    public ArrayList<Zombie> getZombies( ) { return zombies; }
+
+    void clearZombie(Zombie zombie) { zombies.remove(zombie); }
 
 }
