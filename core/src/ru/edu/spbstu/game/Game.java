@@ -100,7 +100,7 @@ public class Game extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 		map = new Map(width, height, tileWidth);
         map.generate();
-        map.bcd(map.getEntrance().firstElement());
+        map.bcd(map.getEntrance().firstElement()); //debug method TODO: fix the bug znd remove it
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
@@ -120,6 +120,7 @@ public class Game extends ApplicationAdapter {
         unitRender();
         zombieRender( );
         inputSwitch();
+        map.bcd(map.getEntrance().firstElement()); //debug method TODO: fix the bug znd remove it
 	}
 
 	private void mapRender()

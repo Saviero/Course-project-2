@@ -197,7 +197,7 @@ public class Map {
         }
     }
 
-    public void bcd(RoadTile start)
+    public void bcd(RoadTile start) //debug method TODO: fix the bug znd remove it
     {
         LinkedList<RoadTile> next = new LinkedList<RoadTile>();
         HashSet<RoadTile> used = new HashSet<RoadTile>();
