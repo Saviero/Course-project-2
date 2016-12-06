@@ -30,7 +30,7 @@ public class Map {
     }
 
     public Vector<RoadTile> getEntrance() {
-        return entrance;
+        return new Vector<RoadTile>(entrance);
     }
 
     public int getTileWidth() {
@@ -129,8 +129,20 @@ public class Map {
 
             //Inside
             for (int i = 0; i < rectHeight; ++i)
-                for (int j = 0; j < rectWidth; ++j)
+                for (int j = 0; j < rectWidth; ++j) {
+                    if (mapArray[i + pos.y][j + pos.x] instanceof RoadTile) {
+                        for (int k = 0; k<4; ++k) {
+                            if (((RoadTile)mapArray[i + pos.y][j + pos.x]).connections[k] != null) {
+                                ((RoadTile) mapArray[i + pos.y][j + pos.x]).connections[k].connections[(k + 2) % 4] = null;
+                            }
+                        }
+                        if (entrance.contains((RoadTile)mapArray[i + pos.y][j + pos.x]))
+                        {
+                            entrance.remove((RoadTile)mapArray[i + pos.y][j + pos.x]);
+                        }
+                    }
                     mapArray[i + pos.y][j + pos.x] = new Tile(0, j + pos.x, i + pos.y);
+                }
 
             //Right side
             for (int i = 0; i < rectHeight; ++i) {
@@ -197,7 +209,7 @@ public class Map {
         }
     }
 
-    public void bcd(RoadTile start) //debug method TODO: fix the bug znd remove it
+    /*public void bcd(RoadTile start) //debug method
     {
         LinkedList<RoadTile> next = new LinkedList<RoadTile>();
         HashSet<RoadTile> used = new HashSet<RoadTile>();
@@ -211,13 +223,14 @@ public class Map {
                     Point coordinates = neighbor.getCoordinates();
                     if (!(mapArray[coordinates.y][coordinates.x] instanceof RoadTile)) {
                         System.out.println(coordinates.x + " " + coordinates.y + "\n");
-                    } else if (!used.contains(neighbor)) {
+                    }
+                    if (!used.contains(neighbor)) {
                         next.addLast(neighbor);
                         used.add(neighbor);
                     }
                 }
             }
         }
-    }
+    }*/
 }
 
