@@ -14,6 +14,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class Game extends ApplicationAdapter {
@@ -113,8 +114,8 @@ public class Game extends ApplicationAdapter {
         selected = null;
         zombieCounter = 200;
         zombies = new ArrayList <Zombie>(zombieCounter);
-        for (Zombie z : zombies) {
-            z = new Zombie(map, textures.get("Zombie").getWidth());
+        for (int i = 0; i < zombieCounter; ++ i) {
+            zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
         }
         bullets = new ArrayList<Bullet>( );
 	}
@@ -179,8 +180,12 @@ public class Game extends ApplicationAdapter {
                 batch.draw(texture, brush.x, brush.y);
             }
             unit.move(map);
+            Bullet bullet = unit.shoot(map);
+            if (bullet != null) {
+                bullets.add(bullet);
+            }
         }
-        batch.end();
+        batch.end( );
     }
 
 
@@ -189,9 +194,10 @@ public class Game extends ApplicationAdapter {
         Texture texture = textures.get("Zombie");
         FloatPoint brush;
         batch.begin();
-        for (int i = 0; i < zombieCounter; ++i)
+        for (Iterator <Zombie> it = zombies.iterator(); it.hasNext(); )
         {
-            brush = new FloatPoint(zombies.get(i).getCoordinates());
+            Zombie zombie = it.next();
+            brush = new FloatPoint(zombie.getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -207,21 +213,22 @@ public class Game extends ApplicationAdapter {
             }*/
 //            brush.y -= texture.getHeight()/2;
             batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
-            zombies.get(i).walk(map);
-            if (!zombies.get(i).isWalking()) {
-                zombies.remove(i);
+            zombie.walk(map);
+            if (!zombie.isWalking()) {
+                it.remove( );
             }
         }
-        batch.end();
+        batch.end( );
     }
 
     private void bulletRender( ){
         Texture texture = textures.get("Bullet");
         FloatPoint brush;
         batch.begin();
-        for (int i = 0; i < bullets.size(); ++i)
+        for (Iterator <Bullet> it = bullets.iterator(); it.hasNext( );)
         {
-            brush = new FloatPoint(bullets.get(i).getCoordinates());
+            Bullet bullet = it.next();
+            brush = new FloatPoint(bullet.getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -237,12 +244,12 @@ public class Game extends ApplicationAdapter {
             }*/
 //            brush.y -= texture.getHeight()/2;
             batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
-            bullets.get(i).fly(map);
-            if (!bullets.get(i).isMoving( )) {
-                bullets.remove(i);
+            bullet.fly(map);
+            if (!bullet.isMoving( )) {
+                it.remove( );
             }
         }
-        batch.end();
+        batch.end( );
     }
 
 

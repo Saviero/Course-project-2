@@ -170,7 +170,12 @@ class Zombie {
         return spriteWidth;
     }
 
-    public void kill( ) {
+    public void kill(Map map) {
+        int x = ((int)Math.floor(coordinates.x) / map.getTileWidth() != map.getWidth()) ?
+                (int)Math.floor(coordinates.x) / map.getTileWidth() : map.getWidth() - 1;
+        int y = ((int)Math.floor(coordinates.y) / map.getTileWidth() != map.getHeight()) ?
+                (int)Math.floor(coordinates.y) / map.getTileWidth() : map.getHeight() - 1;
+        ((RoadTile)map.getTile(x, y)).clearZombie(this);
         isWalking = false;
     }
 
