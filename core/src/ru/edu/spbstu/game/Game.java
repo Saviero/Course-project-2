@@ -2,13 +2,18 @@ package ru.edu.spbstu.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -18,6 +23,10 @@ import java.util.Iterator;
 
 
 public class Game extends ApplicationAdapter {
+    private enum GameState
+    {
+        MAINMENU, PLAY
+    }
 
     private class Input extends InputAdapter
     {
@@ -83,6 +92,9 @@ public class Game extends ApplicationAdapter {
     int zombieCounter; //the amount of zombies to kill
     List <Zombie> zombies; //all the zombies
     List <Bullet> bullets; //all the bullets
+    GameState gamestate; //current state of the game
+    Stage mainmenu; // stage for main menu
+    Table table;
 
     private void loadTextures()
     {
@@ -98,13 +110,28 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
+        gamestate = GameState.MAINMENU;
+        mainmenu = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(mainmenu);
+        camera = new OrthographicCamera();
+
+        table = new Table();
+        table.setFillParent(true);
+        mainmenu.addActor(table);
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = new BitmapFont(Gdx.files.internal("mainmenu.fnt"));
+        table.add(new Label("Hello world!", style));
+	}
+
+	private void loadGame()
+    {
+        batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, width, height);
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
-		map = new Map(width, height, tileWidth);
+        map = new Map(width, height, tileWidth);
         map.generate();
         //map.bcd(map.getEntrance().firstElement()); //debug method
         loadTextures();
@@ -118,17 +145,30 @@ public class Game extends ApplicationAdapter {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
         }
         bullets = new ArrayList<Bullet>( );
-	}
+    }
 
 	@Override
 	public void render () {
-        camera.update();
-        mapRender();
-        unitRender();
-        zombieRender( );
-        bulletRender( );
-        inputSwitch();
-        //map.bcd(map.getEntrance().firstElement()); //debug method
+        switch (gamestate) {
+            case MAINMENU:
+            {
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                mainmenu.act(Gdx.graphics.getDeltaTime());
+                mainmenu.draw();
+                break;
+            }
+            case PLAY: {
+                camera.update();
+                mapRender();
+                unitRender();
+                zombieRender();
+                bulletRender();
+                inputSwitch();
+                //map.bcd(map.getEntrance().firstElement()); //debug method
+                break;
+            }
+        }
 	}
 
 	private void mapRender()
@@ -303,9 +343,20 @@ public class Game extends ApplicationAdapter {
         }
     }
 
+    private void mainMenuRender()
+    {
+
+    }
+
 	@Override
 	public void dispose () {
-        batch.dispose();
-        shapeRenderer.dispose();
+        try {
+            batch.dispose();
+            shapeRenderer.dispose();
+        }
+        catch (NullPointerException e)
+        {
+
+        }
 	}
 }
