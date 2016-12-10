@@ -64,7 +64,7 @@ public class Bullet {
             zombie.kill(map);
             return;
         }*/
-        
+
     }
 
     FloatPoint getCoordinates() {
