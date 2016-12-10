@@ -15,6 +15,8 @@ class Zombie {
 
     private int delayed = 0; //The amount of times the decision of choosing new direction was delayed
 
+    private boolean isWalking = true; //Indicates if zombie has not been killed yet
+
     Zombie(Map map, int spriteWidth) { //Generates zombie on a random entrance tile
         this.spriteWidth = spriteWidth;
         Random rand = new Random( );
@@ -163,6 +165,18 @@ class Zombie {
     public int getVx(){return this.vx;}
 
     public int getVy(){return this.vy;}
+
+    public int getSpriteWidth() {
+        return spriteWidth;
+    }
+
+    public void kill( ) {
+        isWalking = false;
+    }
+
+    public boolean isWalking() {
+        return isWalking;
+    }
 
     private void move(Map map) { //Moves a zombie
         Random rand = new Random( );

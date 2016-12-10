@@ -2,6 +2,8 @@ package ru.edu.spbstu.game;
 
 import java.util.ArrayDeque;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Unit {
     private FloatPoint coordinates;
@@ -92,4 +94,22 @@ public class Unit {
     {
         return new FloatPoint(coordinates);
     }
+
+    public Bullet shoot( ) {
+        List <Zombie> visibleZombies = new ArrayList <Zombie>( );
+        for (RoadTile r : position.connections) {
+            visibleZombies.addAll(r.getZombies());
+            for (RoadTile rr : r.connections) {
+                visibleZombies.addAll(rr.getZombies());
+            }
+        }
+        Zombie closestZombie = visibleZombies.get(0);
+        for (Zombie z : visibleZombies) {
+            if (coordinates.distance(z.getCoordinates()) < coordinates.distance(closestZombie.getCoordinates())) {
+                closestZombie = z;
+            }
+        }
+        return new Bullet(coordinates, closestZombie);
+    }
+
 }

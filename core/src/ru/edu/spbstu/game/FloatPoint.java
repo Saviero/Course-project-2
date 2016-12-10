@@ -1,4 +1,5 @@
 package ru.edu.spbstu.game;
+import java.lang.Math.*;
 
 
 public class FloatPoint implements Comparable<Point>
@@ -63,5 +64,9 @@ public class FloatPoint implements Comparable<Point>
             return (int)this.x - a.x;
         else
             return 1;
+    }
+
+    public float distance(FloatPoint a) {
+        return (float)Math.sqrt(Math.pow(this.x - a.x, 2) + Math.pow(this.y - a.y, 2));
     }
 }

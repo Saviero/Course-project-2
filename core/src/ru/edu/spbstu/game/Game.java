@@ -12,6 +12,8 @@ import com.badlogic.gdx.Input.Buttons;
 
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 
 public class Game extends ApplicationAdapter {
@@ -78,7 +80,8 @@ public class Game extends ApplicationAdapter {
     int unitCounter; // how much units user can spawn at the time
     Unit selected; // selected unit
     int zombieCounter; //the amount of zombies to kill
-    Zombie[ ] zombies; //all the zombies
+    List <Zombie> zombies; //all the zombies
+    List <Bullet> bullets; //all the bullets
 
     private void loadTextures()
     {
@@ -88,6 +91,8 @@ public class Game extends ApplicationAdapter {
         textures.put("Unit_selected", load);
         load = new Texture("zombie.jpg");
         textures.put("Zombie", load);
+        load = new Texture("bullet.jpg");
+        textures.put("Bullet", load);
     }
 	
 	@Override
@@ -107,10 +112,11 @@ public class Game extends ApplicationAdapter {
         unitCounter = 2;
         selected = null;
         zombieCounter = 200;
-        zombies = new Zombie[zombieCounter];
-        for (int i = 0; i < zombieCounter; ++i) {
-            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth());
+        zombies = new ArrayList <Zombie>(zombieCounter);
+        for (Zombie z : zombies) {
+            z = new Zombie(map, textures.get("Zombie").getWidth());
         }
+        bullets = new ArrayList<Bullet>( );
 	}
 
 	@Override
@@ -119,6 +125,7 @@ public class Game extends ApplicationAdapter {
         mapRender();
         unitRender();
         zombieRender( );
+        bulletRender( );
         inputSwitch();
         //map.bcd(map.getEntrance().firstElement()); //debug method
 	}
@@ -184,7 +191,7 @@ public class Game extends ApplicationAdapter {
         batch.begin();
         for (int i = 0; i < zombieCounter; ++i)
         {
-            brush = new FloatPoint(zombies[i].getCoordinates());
+            brush = new FloatPoint(zombies.get(i).getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -200,7 +207,40 @@ public class Game extends ApplicationAdapter {
             }*/
 //            brush.y -= texture.getHeight()/2;
             batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
-            zombies[i].walk(map);
+            zombies.get(i).walk(map);
+            if (!zombies.get(i).isWalking()) {
+                zombies.remove(i);
+            }
+        }
+        batch.end();
+    }
+
+    private void bulletRender( ){
+        Texture texture = textures.get("Bullet");
+        FloatPoint brush;
+        batch.begin();
+        for (int i = 0; i < bullets.size(); ++i)
+        {
+            brush = new FloatPoint(bullets.get(i).getCoordinates());
+            brush.y = height  - brush.y;
+
+            /*
+             Zombie coordinates pointing at the centre of tile and y coordinate is shifted;
+             shifting y to match batch coordinates and make coordinates pointing at bottom left corner of tile
+            */
+            /*
+            if (map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20) == null || map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20).getValue() != 1) {
+                brush.x -= texture.getWidth();
+            }
+            if (map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20) == null || map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20).getValue() != 1) {
+                brush.y -= texture.getHeight();
+            }*/
+//            brush.y -= texture.getHeight()/2;
+            batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
+            bullets.get(i).fly(map);
+            if (!bullets.get(i).isMoving( )) {
+                bullets.remove(i);
+            }
         }
         batch.end();
     }
