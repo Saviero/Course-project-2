@@ -3,6 +3,7 @@ package ru.edu.spbstu.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -23,6 +24,7 @@ import java.util.Iterator;
 
 
 public class Game extends ApplicationAdapter {
+
     private enum GameState
     {
         MAINMENU, PLAY
@@ -119,8 +121,13 @@ public class Game extends ApplicationAdapter {
         table.setFillParent(true);
         mainmenu.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = new BitmapFont(Gdx.files.internal("mainmenu.fnt"));
-        table.add(new Label("Hello world!", style));
+        style.font = new BitmapFont();
+        style.fontColor = new Color(1, 1, 1, 1);
+        Label label = new Label("Hello world!", style);
+        table.center();
+        table.add(label);
+
+        //table.setDebug(true, true);
 	}
 
 	private void loadGame()
@@ -147,13 +154,17 @@ public class Game extends ApplicationAdapter {
         bullets = new ArrayList<Bullet>( );
     }
 
+    public void resize (int width, int height) {
+        mainmenu.getViewport().update(width, height, true);
+    }
+
 	@Override
 	public void render () {
         switch (gamestate) {
             case MAINMENU:
             {
-                Gdx.gl.glClearColor(1, 1, 1, 1);
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(0, 0, 0, 1);
                 mainmenu.act(Gdx.graphics.getDeltaTime());
                 mainmenu.draw();
                 break;
