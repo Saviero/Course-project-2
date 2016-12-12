@@ -22,13 +22,13 @@ import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-
+import java.time.Instant;
 
 public class Game extends ApplicationAdapter {
 
     private enum GameState
     {
-        MAIN_MENU, PLAY
+        MAIN_MENU, PLAY, HIGHESTSCORES
     }
 
 
@@ -100,6 +100,9 @@ public class Game extends ApplicationAdapter {
     GameState gamestate; //current state of the game
     Stage mainmenu; // stage for main menu
     Table table;
+    Instant start;
+    Instant finish;
+    int delay;
 
     private void loadTextures()
     {
@@ -169,6 +172,7 @@ public class Game extends ApplicationAdapter {
         }
         bullets = new ArrayList<Bullet>( );
         gamestate = GameState.PLAY;
+        finish = start = Instant.now();
     }
 
     public void resize (int width, int height) {
@@ -195,6 +199,9 @@ public class Game extends ApplicationAdapter {
                 inputSwitch();
                 //map.bcd(map.getEntrance().firstElement()); //debug method
                 break;
+            }
+            case HIGHESTSCORES: {
+
             }
         }
 	}
@@ -284,6 +291,13 @@ public class Game extends ApplicationAdapter {
             zombie.walk(map);
             if (!zombie.isWalking()) {
                 it.remove( );
+            }
+        }
+        if (zombies.size() == 0) {
+            ++delay;
+            if (delay == 70) {
+                finish = Instant.now();
+                gamestate = GameState.HIGHESTSCORES;
             }
         }
         batch.end( );
