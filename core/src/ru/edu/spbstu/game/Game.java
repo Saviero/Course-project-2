@@ -2,7 +2,6 @@ package ru.edu.spbstu.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -14,6 +13,8 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Hashtable;
@@ -27,8 +28,10 @@ public class Game extends ApplicationAdapter {
 
     private enum GameState
     {
-        MAINMENU, PLAY
+        MAIN_MENU, PLAY
     }
+
+
 
     private class Input extends InputAdapter
     {
@@ -112,7 +115,7 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-        gamestate = GameState.MAINMENU;
+        gamestate = GameState.MAIN_MENU;
         mainmenu = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(mainmenu);
         camera = new OrthographicCamera();
@@ -122,10 +125,23 @@ public class Game extends ApplicationAdapter {
         mainmenu.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = new BitmapFont();
-        style.fontColor = new Color(1, 1, 1, 1);
-        Label label = new Label("Hello world!", style);
-        table.center();
-        table.add(label);
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        Label label = new Label("A game about zombies and stuff", style);
+        table.top();
+        table.add(label).expandX().pad(50);
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont();
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("New Game", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                loadGame();
+            }
+        });
+
 
         //table.setDebug(true, true);
 	}
@@ -152,6 +168,7 @@ public class Game extends ApplicationAdapter {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
         }
         bullets = new ArrayList<Bullet>( );
+        gamestate = GameState.PLAY;
     }
 
     public void resize (int width, int height) {
@@ -161,10 +178,10 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
         switch (gamestate) {
-            case MAINMENU:
+            case MAIN_MENU:
             {
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-                Gdx.gl.glClearColor(0, 0, 0, 1);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
                 mainmenu.act(Gdx.graphics.getDeltaTime());
                 mainmenu.draw();
                 break;
