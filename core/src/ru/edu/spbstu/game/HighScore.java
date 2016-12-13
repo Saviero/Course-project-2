@@ -6,9 +6,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Comparator;
 
-/**
- * Created by liza_moskovskaya on 12/12/2016.
- */
 public class HighScore implements Externalizable, Comparable<HighScore>{
     int minuts;
     int seconds;

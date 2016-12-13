@@ -14,9 +14,10 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.*;
 import java.util.*;
@@ -27,7 +28,7 @@ public class Game extends ApplicationAdapter {
 
     private enum GameState
     {
-        MAIN_MENU, PLAY, HIGHEST_SCORES
+        MAIN_MENU, PLAY, HIGHEST_SCORES, ENTER_NAME
     }
 
 
@@ -97,13 +98,15 @@ public class Game extends ApplicationAdapter {
     List <Zombie> zombies; //all the zombies
     List <Bullet> bullets; //all the bullets
     GameState gamestate; //current state of the game
-    Stage mainmenu; // stage for main menu
+    Stage mainscreen; // stage for main menu
     Table table;
     long start;
     long finish;
     int delay;
     Stage resultTable; //stage for results
     File scores;
+    String playername = "Hero";
+
 
     private void loadTextures()
     {
@@ -124,15 +127,60 @@ public class Game extends ApplicationAdapter {
         //table.setDebug(true, true);
 	}
 
-	private void newGame( ) {
-        gamestate = GameState.MAIN_MENU;
-        mainmenu = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(mainmenu);
+	private void enterName()
+    {
+        gamestate = GameState.ENTER_NAME;
+        mainscreen = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(mainscreen);
         camera = new OrthographicCamera();
 
         table = new Table();
         table.setFillParent(true);
-        mainmenu.addActor(table);
+        mainscreen.addActor(table);
+        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+        style.font = new BitmapFont();
+        style.messageFont = new BitmapFont();
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        style.messageFontColor = new Color(0, 0, 0, 0.3f);
+        Label.LabelStyle lstyle = new Label.LabelStyle();
+        lstyle.font = new BitmapFont();
+        lstyle.fontColor = new Color(0, 0, 0, 0.7f);
+        table.add(new Label("Enter your name: ", lstyle));
+        TextField tfield = new TextField("Hero", style);
+        table.add(tfield);
+        mainscreen.setKeyboardFocus(tfield);
+        tfield.setAlignment(Align.center);
+        tfield.setTextFieldListener(new TextField.TextFieldListener() {
+            @Override
+            public void keyTyped(TextField textField, char c) {
+                playername = textField.getText();
+            }
+        });
+        table.row();
+        table.center();
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont();
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("Play", stylebutton);
+        table.add(button).colspan(2).pad(50);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                loadGame();
+            }
+        });
+
+    }
+
+	private void newGame( ) {
+        gamestate = GameState.MAIN_MENU;
+        mainscreen = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(mainscreen);
+        camera = new OrthographicCamera();
+
+        table = new Table();
+        table.setFillParent(true);
+        mainscreen.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = new BitmapFont();
         style.fontColor = new Color(0, 0, 0, 0.7f);
@@ -148,7 +196,7 @@ public class Game extends ApplicationAdapter {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                loadGame();
+                enterName();
             }
         });
     }
@@ -245,7 +293,7 @@ public class Game extends ApplicationAdapter {
     }
 
     public void resize (int width, int height) {
-        mainmenu.getViewport().update(width, height, true);
+        mainscreen.getViewport().update(width, height, true);
     }
 
 	@Override
@@ -255,8 +303,8 @@ public class Game extends ApplicationAdapter {
             {
                 Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
                 Gdx.gl.glClearColor(1, 1, 1, 1);
-                mainmenu.act(Gdx.graphics.getDeltaTime());
-                mainmenu.draw();
+                mainscreen.act(Gdx.graphics.getDeltaTime());
+                mainscreen.draw();
                 break;
             }
             case PLAY: {
@@ -275,6 +323,12 @@ public class Game extends ApplicationAdapter {
                 resultTable.act(Gdx.graphics.getDeltaTime());
                 resultTable.draw();
                 break;
+            }
+            case ENTER_NAME: {
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                mainscreen.act(Gdx.graphics.getDeltaTime());
+                mainscreen.draw();
             }
         }
 	}
