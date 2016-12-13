@@ -16,19 +16,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.TimeUtils;
 
-import java.util.Hashtable;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.time.Instant;
+
 
 public class Game extends ApplicationAdapter {
 
     private enum GameState
     {
-        MAIN_MENU, PLAY, HIGHESTSCORES
+        MAIN_MENU, PLAY, HIGHEST_SCORES
     }
 
 
@@ -91,7 +90,7 @@ public class Game extends ApplicationAdapter {
     int width = 800;
     int height = 480;
     int tileWidth = 20;
-    Vector<Unit> units = new Vector<Unit>(); // all units generated on map
+    Vector<Unit> units; // all units generated on map
     int unitCounter; // how much units user can spawn at the time
     Unit selected; // selected unit
     int zombieCounter; //the amount of zombies to kill
@@ -100,9 +99,11 @@ public class Game extends ApplicationAdapter {
     GameState gamestate; //current state of the game
     Stage mainmenu; // stage for main menu
     Table table;
-    Instant start;
-    Instant finish;
+    long start;
+    long finish;
     int delay;
+    Stage resultTable; //stage for results
+    File scores;
 
     private void loadTextures()
     {
@@ -118,6 +119,12 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+        newGame();
+        scores = new File("scores");
+        //table.setDebug(true, true);
+	}
+
+	private void newGame( ) {
         gamestate = GameState.MAIN_MENU;
         mainmenu = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(mainmenu);
@@ -144,10 +151,7 @@ public class Game extends ApplicationAdapter {
                 loadGame();
             }
         });
-
-
-        //table.setDebug(true, true);
-	}
+    }
 
 	private void loadGame()
     {
@@ -164,15 +168,80 @@ public class Game extends ApplicationAdapter {
         input = new Input();
         Gdx.input.setInputProcessor(input);
         unitCounter = 2;
+        units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 200;
+        zombieCounter = 1;
         zombies = new ArrayList <Zombie>(zombieCounter);
         for (int i = 0; i < zombieCounter; ++ i) {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
         }
         bullets = new ArrayList<Bullet>( );
         gamestate = GameState.PLAY;
-        finish = start = Instant.now();
+        finish = start = TimeUtils.millis();
+        delay = 0;
+    }
+
+    public void results( ) {
+        resultTable = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(resultTable);
+        camera = new OrthographicCamera();
+
+        table = new Table();
+        table.setFillParent(true);
+        resultTable.addActor(table);
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = new BitmapFont();
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        Label label = new Label("Best scores", style);
+        table.top();
+        table.add(label).expandX().pad(50);
+
+
+/*        List<HighScore> list = new ArrayList<>(11);
+        try (ObjectInputStream oin = new ObjectInputStream(new FileInputStream(scores))){
+            for (int i = 0; i < 10; ++i) {
+                try {
+                    list.add((HighScore) oin.readObject());
+                }
+                catch (IOException e) { }
+                catch (ClassNotFoundException e) {
+                    throw new RuntimeException();
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException();
+        }
+        catch (IOException e) {
+            throw new RuntimeException();
+        }
+
+        list.add(new HighScore(finish - start));
+
+        try (ObjectOutputStream oon = new ObjectOutputStream(new FileOutputStream(scores))){
+            for (int i = 0; i < 10; ++i) {
+                oon.writeObject(list.get(i));
+            }
+        }
+        catch (FileNotFoundException e) {
+            throw new RuntimeException();
+        }
+        catch (IOException e) {
+            throw new RuntimeException();
+        }*/
+
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont();
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("Main menu", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                newGame();
+            }
+        });
     }
 
     public void resize (int width, int height) {
@@ -200,8 +269,12 @@ public class Game extends ApplicationAdapter {
                 //map.bcd(map.getEntrance().firstElement()); //debug method
                 break;
             }
-            case HIGHESTSCORES: {
-
+            case HIGHEST_SCORES: {
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                resultTable.act(Gdx.graphics.getDeltaTime());
+                resultTable.draw();
+                break;
             }
         }
 	}
@@ -295,9 +368,12 @@ public class Game extends ApplicationAdapter {
         }
         if (zombies.size() == 0) {
             ++delay;
+            if (finish == start) {
+                finish = TimeUtils.millis();
+            }
             if (delay == 70) {
-                finish = Instant.now();
-                gamestate = GameState.HIGHESTSCORES;
+                gamestate = GameState.HIGHEST_SCORES;
+                results();
             }
         }
         batch.end( );
@@ -401,4 +477,7 @@ public class Game extends ApplicationAdapter {
 
         }
 	}
+
 }
+
+
