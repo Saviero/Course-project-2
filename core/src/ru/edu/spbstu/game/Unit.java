@@ -2,12 +2,15 @@ package ru.edu.spbstu.game;
 
 import java.util.ArrayDeque;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Unit {
     private FloatPoint coordinates;
     private RoadTile position;
     private ArrayDeque<RoadTile> path;
     private double velocity = 0.5;
+    private int nextShoot = 0;
 
     Unit(int x, int y, Map map)
     {
@@ -92,4 +95,53 @@ public class Unit {
     {
         return new FloatPoint(coordinates);
     }
+
+    public Bullet shoot(Map map) {
+        if (nextShoot == 0) {
+            List <Zombie> visibleZombies = new ArrayList <Zombie>( );
+            int x = ((int)Math.floor(coordinates.x) / map.getTileWidth() != map.getWidth()) ?
+                    (int)Math.floor(coordinates.x) / map.getTileWidth() : map.getWidth() - 1;
+            int y = ((int)Math.floor(coordinates.y) / map.getTileWidth() != map.getHeight()) ?
+                    (int)Math.floor(coordinates.y) / map.getTileWidth() : map.getHeight() - 1;
+            for (RoadTile r : position.connections) {
+                if (r != null) {
+                    visibleZombies.addAll(r.getZombies());
+                    for (RoadTile rr : r.connections) {
+                        if (rr != null) {
+                            visibleZombies.addAll(rr.getZombies());
+                        }
+
+                    }
+                }
+            }
+            for (int i = 3; i < 5; ++i) {
+                if (map.getTile(x + i,y) != null && map.getTile(x + i,y) instanceof RoadTile) {
+                    visibleZombies.addAll(((RoadTile)map.getTile(x + i,y)).getZombies());
+                }
+                if (map.getTile(x - i,y) != null && map.getTile(x - i,y) instanceof RoadTile) {
+                    visibleZombies.addAll(((RoadTile)map.getTile(x - i,y)).getZombies());
+                }
+                if (map.getTile(x,y + i) != null && map.getTile(x,y + i) instanceof RoadTile) {
+                    visibleZombies.addAll(((RoadTile)map.getTile(x,y + i)).getZombies());
+                }
+                if (map.getTile(x,y - i) != null && map.getTile(x,y - i) instanceof RoadTile) {
+                    visibleZombies.addAll(((RoadTile)map.getTile(x,y - i)).getZombies());
+                }
+            }
+
+            if (!visibleZombies.isEmpty()) {
+                Zombie closestZombie = visibleZombies.get(0);
+                for (Zombie z : visibleZombies) {
+                    if (coordinates.distance(z.getCoordinates()) < coordinates.distance(closestZombie.getCoordinates())) {
+                        closestZombie = z;
+                    }
+                }
+                ++nextShoot;
+                return new Bullet(coordinates, closestZombie);
+            }
+        }
+        nextShoot = (nextShoot == 10) ? 0 : nextShoot + 1;
+        return null;
+    }
+
 }

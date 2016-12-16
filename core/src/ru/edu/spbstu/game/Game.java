@@ -2,19 +2,35 @@ package ru.edu.spbstu.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.TimeUtils;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
+import java.io.*;
+import java.util.*;
+import java.util.List;
 
 public class Game extends ApplicationAdapter {
+
+    private enum GameState
+    {
+        MAIN_MENU, PLAY, HIGHEST_SCORES, ENTER_NAME
+    }
+
+
 
     private class Input extends InputAdapter
     {
@@ -74,11 +90,21 @@ public class Game extends ApplicationAdapter {
     int width = 800;
     int height = 480;
     int tileWidth = 20;
-    Vector<Unit> units = new Vector<Unit>(); // all units generated on map
+    Vector<Unit> units; // all units generated on map
     int unitCounter; // how much units user can spawn at the time
     Unit selected; // selected unit
     int zombieCounter; //the amount of zombies to kill
-    Zombie[ ] zombies; //all the zombies
+    List <Zombie> zombies; //all the zombies
+    List <Bullet> bullets; //all the bullets
+    GameState gamestate; //current state of the game
+    Stage mainscreen; // stage for main menu
+    long start;
+    long finish;
+    int delay;
+    Stage resultTable; //stage for results
+    HighScoreTable scores;
+    String playername = "Hero";
+
 
     private void loadTextures()
     {
@@ -88,39 +114,267 @@ public class Game extends ApplicationAdapter {
         textures.put("Unit_selected", load);
         load = new Texture("zombie.jpg");
         textures.put("Zombie", load);
+        load = new Texture("bullet.jpg");
+        textures.put("Bullet", load);
     }
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
+
+        newGame();
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./scores"))){
+            scores = (HighScoreTable) ois.readObject();
+            ois.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.err.println("SCORES file not found, creating new one");
+            FileHandle file = new FileHandle("./scores");
+            scores = new HighScoreTable();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file.file())))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
+        }
+        catch (IOException e)
+        {
+            System.err.println("SCORES file cannot be loaded, creating new table");
+            scores = new HighScoreTable();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("./scores")))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
+        }
+        catch (ClassNotFoundException e)
+        {
+            System.err.println("Class not found!");
+        }
+	}
+
+	private void enterName()
+    {
+        gamestate = GameState.ENTER_NAME;
+        mainscreen = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(mainscreen);
+        camera = new OrthographicCamera();
+        Table table = new Table();
+
+        table.setFillParent(true);
+        mainscreen.addActor(table);
+        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        style.messageFont = new BitmapFont();
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        style.messageFontColor = new Color(0, 0, 0, 0.3f);
+        Label.LabelStyle lstyle = new Label.LabelStyle();
+        lstyle.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        lstyle.fontColor = new Color(0, 0, 0, 0.7f);
+        table.add(new Label("Enter your name: ", lstyle));
+        TextField tfield = new TextField("Hero", style);
+        table.add(tfield);
+        mainscreen.setKeyboardFocus(tfield);
+        tfield.setAlignment(Align.center);
+        tfield.setTextFieldListener(new TextField.TextFieldListener() {
+            @Override
+            public void keyTyped(TextField textField, char c) {
+                playername = textField.getText();
+            }
+        });
+        table.row();
+        table.center();
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("Play", stylebutton);
+        table.add(button).colspan(2).pad(50);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                loadGame();
+            }
+        });
+
+    }
+
+	private void newGame( ) {
+        gamestate = GameState.MAIN_MENU;
+        mainscreen = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(mainscreen);
+        camera = new OrthographicCamera();
+
+        Table table = new Table();
+        table.setFillParent(true);
+        mainscreen.addActor(table);
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        Label label = new Label("A game about zombies and stuff", style);
+        table.top();
+        table.add(label).expandX().pad(50);
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("New Game", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                enterName();
+            }
+        });
+        button = new TextButton("Records", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                results();
+            }
+        });
+        button = new TextButton("Exit", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
+    }
+
+	private void loadGame()
+    {
+        batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, width, height);
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
-		map = new Map(width, height, tileWidth);
+        map = new Map(width, height, tileWidth);
         map.generate();
         //map.bcd(map.getEntrance().firstElement()); //debug method
         loadTextures();
         input = new Input();
         Gdx.input.setInputProcessor(input);
         unitCounter = 2;
+        units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 200;
-        zombies = new Zombie[zombieCounter];
-        for (int i = 0; i < zombieCounter; ++i) {
-            zombies[i] = new Zombie(map, textures.get("Zombie").getWidth());
+        zombieCounter = 500;
+        zombies = new ArrayList <Zombie>(zombieCounter);
+        for (int i = 0; i < zombieCounter; ++ i) {
+            zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
         }
-	}
+        bullets = new ArrayList<Bullet>( );
+        gamestate = GameState.PLAY;
+        finish = start = TimeUtils.millis();
+        delay = 0;
+    }
+
+    public void results( ) {
+        gamestate = GameState.HIGHEST_SCORES;
+        resultTable = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(resultTable);
+        camera = new OrthographicCamera();
+
+        Table table = new Table();
+        table.setFillParent(true);
+        resultTable.addActor(table);
+        Label.LabelStyle style = new Label.LabelStyle();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        style.fontColor = new Color(0, 0, 0, 0.7f);
+        Label label = new Label("Best scores", style);
+        table.top();
+        table.add(label).expandX().spaceTop(30).spaceBottom(20);
+
+        String strscore;
+        Integer place = 1;
+        for(HighScore score : scores)
+        {
+            strscore = place.toString() + ": " + score.getScore();
+            Label lstrscore = new Label(strscore, style);
+            table.row();
+            table.add(lstrscore);
+            ++place;
+        }
+
+        TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
+        stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
+        TextButton button = new TextButton("Main menu", stylebutton);
+        table.row();
+        Table buttonTable = new Table();
+        table.add(buttonTable).spaceTop(20);
+        buttonTable.add(button).space(50);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                newGame();
+            }
+        });
+        button = new TextButton("Reset", stylebutton);
+        buttonTable.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                scores.clear();
+                results();
+            }
+        });
+    }
+
+    public void resize (int width, int height) {
+        mainscreen.getViewport().update(width, height, true);
+    }
 
 	@Override
 	public void render () {
-        camera.update();
-        mapRender();
-        unitRender();
-        zombieRender( );
-        inputSwitch();
-        //map.bcd(map.getEntrance().firstElement()); //debug method
+        switch (gamestate) {
+            case MAIN_MENU:
+            {
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                mainscreen.act(Gdx.graphics.getDeltaTime());
+                mainscreen.draw();
+                break;
+            }
+            case PLAY: {
+                camera.update();
+                mapRender();
+                unitRender();
+                zombieRender();
+                bulletRender();
+                inputSwitch();
+                //map.bcd(map.getEntrance().firstElement()); //debug method
+                break;
+            }
+            case HIGHEST_SCORES: {
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                resultTable.act(Gdx.graphics.getDeltaTime());
+                resultTable.draw();
+                break;
+            }
+            case ENTER_NAME: {
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                Gdx.gl.glClearColor(1, 1, 1, 1);
+                mainscreen.act(Gdx.graphics.getDeltaTime());
+                mainscreen.draw();
+            }
+        }
 	}
 
 	private void mapRender()
@@ -172,8 +426,12 @@ public class Game extends ApplicationAdapter {
                 batch.draw(texture, brush.x, brush.y);
             }
             unit.move(map);
+            Bullet bullet = unit.shoot(map);
+            if (bullet != null) {
+                bullets.add(bullet);
+            }
         }
-        batch.end();
+        batch.end( );
     }
 
 
@@ -182,9 +440,10 @@ public class Game extends ApplicationAdapter {
         Texture texture = textures.get("Zombie");
         FloatPoint brush;
         batch.begin();
-        for (int i = 0; i < zombieCounter; ++i)
+        for (Iterator <Zombie> it = zombies.iterator(); it.hasNext(); )
         {
-            brush = new FloatPoint(zombies[i].getCoordinates());
+            Zombie zombie = it.next();
+            brush = new FloatPoint(zombie.getCoordinates());
             brush.y = height  - brush.y;
 
             /*
@@ -200,9 +459,53 @@ public class Game extends ApplicationAdapter {
             }*/
 //            brush.y -= texture.getHeight()/2;
             batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
-            zombies[i].walk(map);
+            zombie.walk(map);
+            if (!zombie.isWalking()) {
+                it.remove( );
+            }
         }
-        batch.end();
+        if (zombies.size() == 0) {
+            ++delay;
+            if (finish == start) {
+                finish = TimeUtils.millis();
+            }
+            if (delay == 70) {
+                scores.addScore(playername, finish - start);
+                results();
+            }
+        }
+        batch.end( );
+    }
+
+    private void bulletRender( ){
+        Texture texture = textures.get("Bullet");
+        FloatPoint brush;
+        batch.begin();
+        for (Iterator <Bullet> it = bullets.iterator(); it.hasNext( );)
+        {
+            Bullet bullet = it.next();
+            brush = new FloatPoint(bullet.getCoordinates());
+            brush.y = height  - brush.y;
+
+            /*
+             Zombie coordinates pointing at the centre of tile and y coordinate is shifted;
+             shifting y to match batch coordinates and make coordinates pointing at bottom left corner of tile
+            */
+            /*
+            if (map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20) == null || map.getTile((brush.x + texture.getWidth()) / 20, brush.y / 20).getValue() != 1) {
+                brush.x -= texture.getWidth();
+            }
+            if (map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20) == null || map.getTile(brush.x / 20, (brush.y + texture.getHeight()) / 20).getValue() != 1) {
+                brush.y -= texture.getHeight();
+            }*/
+//            brush.y -= texture.getHeight()/2;
+            batch.draw(texture, brush.x - texture.getWidth() / 2, brush.y - texture.getHeight() / 2);
+            bullet.fly(map);
+            if (!bullet.isMoving( )) {
+                it.remove( );
+            }
+        }
+        batch.end( );
     }
 
 
@@ -256,9 +559,33 @@ public class Game extends ApplicationAdapter {
         }
     }
 
+    private void mainMenuRender()
+    {
+
+    }
+
 	@Override
 	public void dispose () {
-        batch.dispose();
-        shapeRenderer.dispose();
+        try {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("./scores")))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
+            batch.dispose();
+            shapeRenderer.dispose();
+        }
+        catch (NullPointerException e)
+        {
+
+        }
 	}
+
 }
+
+
