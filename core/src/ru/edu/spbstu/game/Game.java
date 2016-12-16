@@ -2,6 +2,7 @@ package ru.edu.spbstu.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 
 import java.io.*;
 import java.util.*;
@@ -138,12 +138,12 @@ public class Game extends ApplicationAdapter {
         table.setFillParent(true);
         mainscreen.addActor(table);
         TextField.TextFieldStyle style = new TextField.TextFieldStyle();
-        style.font = new BitmapFont();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         style.messageFont = new BitmapFont();
         style.fontColor = new Color(0, 0, 0, 0.7f);
         style.messageFontColor = new Color(0, 0, 0, 0.3f);
         Label.LabelStyle lstyle = new Label.LabelStyle();
-        lstyle.font = new BitmapFont();
+        lstyle.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         lstyle.fontColor = new Color(0, 0, 0, 0.7f);
         table.add(new Label("Enter your name: ", lstyle));
         TextField tfield = new TextField("Hero", style);
@@ -159,7 +159,7 @@ public class Game extends ApplicationAdapter {
         table.row();
         table.center();
         TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
-        stylebutton.font = new BitmapFont();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("Play", stylebutton);
         table.add(button).colspan(2).pad(50);
@@ -182,13 +182,13 @@ public class Game extends ApplicationAdapter {
         table.setFillParent(true);
         mainscreen.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = new BitmapFont();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         style.fontColor = new Color(0, 0, 0, 0.7f);
         Label label = new Label("A game about zombies and stuff", style);
         table.top();
         table.add(label).expandX().pad(50);
         TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
-        stylebutton.font = new BitmapFont();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("New Game", stylebutton);
         table.row();
@@ -218,7 +218,7 @@ public class Game extends ApplicationAdapter {
         unitCounter = 2;
         units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 1;
+        zombieCounter = 1000;
         zombies = new ArrayList <Zombie>(zombieCounter);
         for (int i = 0; i < zombieCounter; ++ i) {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
@@ -238,7 +238,7 @@ public class Game extends ApplicationAdapter {
         table.setFillParent(true);
         resultTable.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
-        style.font = new BitmapFont();
+        style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         style.fontColor = new Color(0, 0, 0, 0.7f);
         Label label = new Label("Best scores", style);
         table.top();
@@ -279,7 +279,7 @@ public class Game extends ApplicationAdapter {
         }*/
 
         TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
-        stylebutton.font = new BitmapFont();
+        stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("Main menu", stylebutton);
         table.row();
