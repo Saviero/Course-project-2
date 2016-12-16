@@ -162,7 +162,6 @@ public class Game extends ApplicationAdapter {
         {
             System.err.println("Class not found!");
         }
-        //table.setDebug(true, true);
 	}
 
 	private void enterName()
@@ -246,6 +245,15 @@ public class Game extends ApplicationAdapter {
                 results();
             }
         });
+        button = new TextButton("Exit", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Gdx.app.exit();
+            }
+        });
     }
 
 	private void loadGame()
@@ -265,7 +273,7 @@ public class Game extends ApplicationAdapter {
         unitCounter = 2;
         units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 1;
+        zombieCounter = 500;
         zombies = new ArrayList <Zombie>(zombieCounter);
         for (int i = 0; i < zombieCounter; ++ i) {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
@@ -277,6 +285,7 @@ public class Game extends ApplicationAdapter {
     }
 
     public void results( ) {
+        gamestate = GameState.HIGHEST_SCORES;
         resultTable = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(resultTable);
         camera = new OrthographicCamera();
@@ -289,7 +298,7 @@ public class Game extends ApplicationAdapter {
         style.fontColor = new Color(0, 0, 0, 0.7f);
         Label label = new Label("Best scores", style);
         table.top();
-        table.add(label).expandX().pad(50);
+        table.add(label).expandX().spaceTop(30).spaceBottom(20);
 
         String strscore;
         Integer place = 1;
@@ -307,13 +316,22 @@ public class Game extends ApplicationAdapter {
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("Main menu", stylebutton);
         table.row();
-        table.add(button).pad(50);
+        Table buttonTable = new Table();
+        table.add(buttonTable).spaceTop(20);
+        buttonTable.add(button).space(50);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-
-
                 newGame();
+            }
+        });
+        button = new TextButton("Reset", stylebutton);
+        buttonTable.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                scores.clear();
+                results();
             }
         });
     }
@@ -452,7 +470,6 @@ public class Game extends ApplicationAdapter {
                 finish = TimeUtils.millis();
             }
             if (delay == 70) {
-                gamestate = GameState.HIGHEST_SCORES;
                 scores.addScore(playername, finish - start);
                 results();
             }

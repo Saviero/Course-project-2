@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 public class HighScoreTable extends TreeSet<HighScore> implements Serializable {
 
-    private final int tableSize = 10;
+    private final int tableSize = 5;
 
     public void addScore(String name, long time)
     {
