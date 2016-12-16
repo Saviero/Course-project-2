@@ -23,7 +23,6 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
-
 public class Game extends ApplicationAdapter {
 
     private enum GameState
@@ -99,12 +98,11 @@ public class Game extends ApplicationAdapter {
     List <Bullet> bullets; //all the bullets
     GameState gamestate; //current state of the game
     Stage mainscreen; // stage for main menu
-    Table table;
     long start;
     long finish;
     int delay;
     Stage resultTable; //stage for results
-    File scores;
+    HighScoreTable scores;
     String playername = "Hero";
 
 
@@ -122,8 +120,48 @@ public class Game extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+
         newGame();
-        scores = new File("scores");
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./scores"))){
+            scores = (HighScoreTable) ois.readObject();
+            ois.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.err.println("SCORES file not found, creating new one");
+            FileHandle file = new FileHandle("./scores");
+            scores = new HighScoreTable();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file.file())))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
+        }
+        catch (IOException e)
+        {
+            System.err.println("SCORES file cannot be loaded, creating new table");
+            scores = new HighScoreTable();
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("./scores")))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
+        }
+        catch (ClassNotFoundException e)
+        {
+            System.err.println("Class not found!");
+        }
         //table.setDebug(true, true);
 	}
 
@@ -133,8 +171,8 @@ public class Game extends ApplicationAdapter {
         mainscreen = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(mainscreen);
         camera = new OrthographicCamera();
+        Table table = new Table();
 
-        table = new Table();
         table.setFillParent(true);
         mainscreen.addActor(table);
         TextField.TextFieldStyle style = new TextField.TextFieldStyle();
@@ -178,7 +216,7 @@ public class Game extends ApplicationAdapter {
         Gdx.input.setInputProcessor(mainscreen);
         camera = new OrthographicCamera();
 
-        table = new Table();
+        Table table = new Table();
         table.setFillParent(true);
         mainscreen.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
@@ -197,6 +235,15 @@ public class Game extends ApplicationAdapter {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 enterName();
+            }
+        });
+        button = new TextButton("Records", stylebutton);
+        table.row();
+        table.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                results();
             }
         });
     }
@@ -218,7 +265,7 @@ public class Game extends ApplicationAdapter {
         unitCounter = 2;
         units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 1000;
+        zombieCounter = 1;
         zombies = new ArrayList <Zombie>(zombieCounter);
         for (int i = 0; i < zombieCounter; ++ i) {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
@@ -234,7 +281,7 @@ public class Game extends ApplicationAdapter {
         Gdx.input.setInputProcessor(resultTable);
         camera = new OrthographicCamera();
 
-        table = new Table();
+        Table table = new Table();
         table.setFillParent(true);
         resultTable.addActor(table);
         Label.LabelStyle style = new Label.LabelStyle();
@@ -244,49 +291,28 @@ public class Game extends ApplicationAdapter {
         table.top();
         table.add(label).expandX().pad(50);
 
-
-/*        List<HighScore> list = new ArrayList<>(11);
-        try (ObjectInputStream oin = new ObjectInputStream(new FileInputStream(scores))){
-            for (int i = 0; i < 10; ++i) {
-                try {
-                    list.add((HighScore) oin.readObject());
-                }
-                catch (IOException e) { }
-                catch (ClassNotFoundException e) {
-                    throw new RuntimeException();
-                }
-            }
+        String strscore;
+        Integer place = 1;
+        for(HighScore score : scores)
+        {
+            strscore = place.toString() + ": " + score.getScore();
+            Label lstrscore = new Label(strscore, style);
+            table.row();
+            table.add(lstrscore);
+            ++place;
         }
-        catch (FileNotFoundException e) {
-            throw new RuntimeException();
-        }
-        catch (IOException e) {
-            throw new RuntimeException();
-        }
-
-        list.add(new HighScore(finish - start));
-
-        try (ObjectOutputStream oon = new ObjectOutputStream(new FileOutputStream(scores))){
-            for (int i = 0; i < 10; ++i) {
-                oon.writeObject(list.get(i));
-            }
-        }
-        catch (FileNotFoundException e) {
-            throw new RuntimeException();
-        }
-        catch (IOException e) {
-            throw new RuntimeException();
-        }*/
 
         TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
         stylebutton.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("Main menu", stylebutton);
         table.row();
-        table.add(button);
+        table.add(button).pad(50);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+
+
                 newGame();
             }
         });
@@ -427,6 +453,7 @@ public class Game extends ApplicationAdapter {
             }
             if (delay == 70) {
                 gamestate = GameState.HIGHEST_SCORES;
+                scores.addScore(playername, finish - start);
                 results();
             }
         }
@@ -523,6 +550,16 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void dispose () {
         try {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("./scores")))
+            {
+                oos.writeObject(scores);
+                oos.flush();
+                oos.close();
+            }
+            catch (IOException exc)
+            {
+                System.err.println("EVERYTHING IS VERY BAD");
+            }
             batch.dispose();
             shapeRenderer.dispose();
         }
