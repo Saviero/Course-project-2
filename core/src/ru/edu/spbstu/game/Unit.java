@@ -115,17 +115,30 @@ public class Unit {
                 }
             }
             for (int i = 3; i < 5; ++i) {
+                int j;
                 if (map.getTile(x + i,y) != null && map.getTile(x + i,y) instanceof RoadTile) {
-                    visibleZombies.addAll(((RoadTile)map.getTile(x + i,y)).getZombies());
+                    for (j = 0; j < i && map.getTile(x + j,y) != null && map.getTile(x + j,y) instanceof RoadTile; ++j) {  }
+                    if (j == i) {
+                        visibleZombies.addAll(((RoadTile)map.getTile(x + i,y)).getZombies());
+                    }
                 }
                 if (map.getTile(x - i,y) != null && map.getTile(x - i,y) instanceof RoadTile) {
-                    visibleZombies.addAll(((RoadTile)map.getTile(x - i,y)).getZombies());
+                    for (j = 0; j < i && map.getTile(x - j,y) != null && map.getTile(x - j,y) instanceof RoadTile; ++j) {  }
+                    if (j == i) {
+                        visibleZombies.addAll(((RoadTile) map.getTile(x - i, y)).getZombies());
+                    }
                 }
                 if (map.getTile(x,y + i) != null && map.getTile(x,y + i) instanceof RoadTile) {
-                    visibleZombies.addAll(((RoadTile)map.getTile(x,y + i)).getZombies());
+                    for (j = 0; j < i && map.getTile(x,y + j) != null && map.getTile(x,y + j) instanceof RoadTile; ++j) {  }
+                    if (j == i) {
+                        visibleZombies.addAll(((RoadTile) map.getTile(x, y + i)).getZombies());
+                    }
                 }
                 if (map.getTile(x,y - i) != null && map.getTile(x,y - i) instanceof RoadTile) {
-                    visibleZombies.addAll(((RoadTile)map.getTile(x,y - i)).getZombies());
+                    for (j = 0; j < i && map.getTile(x,y - j) != null && map.getTile(x,y - j) instanceof RoadTile; ++j) {  }
+                    if (j == i) {
+                        visibleZombies.addAll(((RoadTile) map.getTile(x, y - i)).getZombies());
+                    }
                 }
             }
 

@@ -221,7 +221,7 @@ public class Game extends ApplicationAdapter {
         Label.LabelStyle style = new Label.LabelStyle();
         style.font = new BitmapFont(new FileHandle("./mainmenu.fnt"));
         style.fontColor = new Color(0, 0, 0, 0.7f);
-        Label label = new Label("A game about zombies and stuff", style);
+        Label label = new Label("The game about zombies and stuff", style);
         table.top();
         table.add(label).expandX().pad(50);
         TextButton.TextButtonStyle stylebutton = new TextButton.TextButtonStyle();
@@ -229,7 +229,7 @@ public class Game extends ApplicationAdapter {
         stylebutton.fontColor = new Color(0, 0, 0, 0.7f);
         TextButton button = new TextButton("New Game", stylebutton);
         table.row();
-        table.add(button);
+        table.add(button).pad(15);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -238,7 +238,7 @@ public class Game extends ApplicationAdapter {
         });
         button = new TextButton("Records", stylebutton);
         table.row();
-        table.add(button);
+        table.add(button).pad(15);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -247,7 +247,7 @@ public class Game extends ApplicationAdapter {
         });
         button = new TextButton("Exit", stylebutton);
         table.row();
-        table.add(button);
+        table.add(button).pad(15);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -273,7 +273,7 @@ public class Game extends ApplicationAdapter {
         unitCounter = 2;
         units = new Vector<Unit>();
         selected = null;
-        zombieCounter = 500;
+        zombieCounter = 1;
         zombies = new ArrayList <Zombie>(zombieCounter);
         for (int i = 0; i < zombieCounter; ++ i) {
             zombies.add(i, new Zombie(map, textures.get("Zombie").getWidth()));
@@ -298,7 +298,7 @@ public class Game extends ApplicationAdapter {
         style.fontColor = new Color(0, 0, 0, 0.7f);
         Label label = new Label("Best scores", style);
         table.top();
-        table.add(label).expandX().spaceTop(30).spaceBottom(20);
+        table.add(label).expandX()./*spaceTop(30).spaceBottom(20).*/pad(20);
 
         String strscore;
         Integer place = 1;
